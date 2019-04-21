@@ -1,0 +1,2 @@
+export LUA_PATH='/opt/local/share/luarocks/share/lua/5.1/?.lua;;'
+export LUA_CPATH='/opt/local/share/luarocks/lib/lua/5.1/?.so;;'

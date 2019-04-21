@@ -1,0 +1,122 @@
+#! /bin/sh
+
+typeset -a +x DIRSTACK
+
+function parseArgs {
+    for i in "$@" ; do
+        if +[0-9]* ; then
+		rotate=left
+		count=number
+	elif -[0-9]* ; then
+		rotate=right
+		count=number
+	elif '-n' ; then
+		no_cd=:
+        elif '-h' ; then
+                print_help=:
+	else 
+		if [ "$dir" ] ; then
+			dir="$dir $i"
+		else
+			dir=$i
+		fi
+	fi
+    done
+}
+
+function pushd {
+
+hd
+
+Save and then change the current directory. With no arguments, pushd exchanges the top two directories.
+
+SYNTAX
+      pushd [dir | +N | -N] [-n]
+KEY
+   +N   Brings the Nth directory (counting from the left of the list
+        printed by dirs, starting with zero) to the top of the list by
+        rotating the stack.
+
+   -N   Brings the Nth directory (counting from the right of the list
+        printed by dirs, starting with zero) to the top of the list by
+        rotating the stack.
+
+   -n   Suppresses the normal change of directory when adding directories to the 
+        stack, so that only the stack is manipulated.
+
+   dir  Makes the current working directory be the top of the stack, and then executes
+        the equivalent of `cd dir'. cds to dir.
+
+
+
+
+dirs
+
+Display the list of currently remembered directories.
+
+Syntax
+      dirs [+N | -N] [-clpv]
+
+Options
+     +N   Displays the Nth directory (counting from the left of the list 
+          printed by dirs when invoked without options), starting with 
+          zero. 
+
+     -N   Displays the Nth directory (counting from the right of the list 
+          printed by dirs when invoked without options), starting with 
+          zero.  
+
+     -c   Clears the directory stack by deleting all of the elements. 
+
+     -l   Produces a longer listing; the default listing format uses a tilde to denote 
+          the home directory.
+
+     -p   Causes dirs to print the directory stack with one entry per 
+          line. 
+     -v   Causes dirs to print the directory stack with one entry per 
+          line, prefixing each entry with its index in the stack.
+
+Description
+
+popd
+
+Remove the top entry from the directory stack, and cd to the new top directory.
+
+SYNTAX
+      popd [+N | -N] [-n]
+
+Key
+   +N   Remove the Nth directory (counting from the left of the list 
+        printed by dirs), starting with zero. 
+
+   -N   Remove the Nth directory (counting from the right of the list 
+        printed by dirs), starting with zero. 
+
+   -n   Suppress the normal change of directory when removing directories from 
+        the stack, so that only the stack is manipulated. 
+
+When no arguments are given, popd removes the top directory from the stack and performs a cd to the new top directory.
+
+The elements are numbered from 0 starting at the first directory listed with dirs; i.e., popd is equivalent to popd +0.
+
+pushd
+
+Save and then change the current directory. With no arguments, pushd exchanges the top two directories.
+
+SYNTAX
+      pushd [dir | +N | -N] [-n]
+KEY
+   +N   Brings the Nth directory (counting from the left of the list 
+        printed by dirs, starting with zero) to the top of the list by 
+        rotating the stack. 
+
+   -N   Brings the Nth directory (counting from the right of the list 
+        printed by dirs, starting with zero) to the top of the list by 
+        rotating the stack. 
+
+   -n   Suppresses the normal change of directory when adding directories to the 
+        stack, so that only the stack is manipulated. 
+
+   dir  Makes the current working directory be the top of the stack, and then executes 
+        the equivalent of `cd dir'. cds to dir.
+

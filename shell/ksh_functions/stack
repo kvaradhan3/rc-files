@@ -1,0 +1,43 @@
+#! /bin/sh
+
+function _pop {
+    set -x
+    typeset +x IFS _stack _i _val
+    _stack=$1; shift
+    typeset -n _stack
+
+    IFS=^
+    set $_stack
+    _val=$2; shift ; shift
+    _stack=
+    for _i in "$@" ; do
+        _stack="$_stack^$_i"
+    done
+    IFS=
+
+    echo $_val
+    return
+}
+    
+function _push {
+    set -x
+    typeset +x IFS _stack _i _val
+    _stack=$1; shift
+    typeset -n _stack
+
+    _val=
+    for _i in "$@" ; do
+        _val=$_val^$_i
+    done
+    _stack=$_val$_stack
+    return
+}
+
+function _shift {
+    return
+}
+
+function _unshift {
+    return
+}
+

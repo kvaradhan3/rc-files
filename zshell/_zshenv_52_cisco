@@ -1,0 +1,6 @@
+if [ ! -d /nobackup ] ; then
+    return 0
+fi
+
+set -o login
+

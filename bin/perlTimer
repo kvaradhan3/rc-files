@@ -1,0 +1,49 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use File::Find::Rule; 
+use Time::HiRes qw(time);
+use IO::Handle;
+STDOUT->autoflush(1);
+
+sub timeCodeBlock(\&$) {
+    my $subr = shift;
+    my $name = shift;
+
+    printf("TEST: %20s\t", $name);
+    my $clk_start = time();
+    for (0..100) {
+	&$subr;
+    }
+    my $clk_end   = time();
+    my $elapsed   = $clk_end - $clk_start;
+    printf("B: %17.6f E: %17.6f  T: %11.6f\n",
+	   $clk_start, $clk_end, $elapsed);
+    $elapsed;
+} 
+
+sub iterateBlock(&@) {
+    my $subr = shift;
+    my $test = shift;
+    my $cntr = shift || 10;
+    
+    my $sum = 0;
+    my $min = 999999;
+    my $max = 0;
+    
+    for my $i (1..$cntr) {
+	my $val = timeCodeBlock &{$subr}, "$test $i";
+	$sum += $val;
+	$min  = $val if ($val < $min);
+	$max  = $val if ($val > $max);
+    }
+    printf("TEST %s STATS: min/av/max %11.6f/%11.6f/%11.6f\n",
+	   $test, $min, ($sum/$cntr), $max);
+}
+
+
+iterateBlock { File::Find::Rule->file()->in('.') } "Bare Execution";
+iterateBlock { map { File::Find::Rule->file->in($_) } '.'} "Map Execution";
+
+exit;

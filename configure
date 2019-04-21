@@ -1,0 +1,41 @@
+#! /bin/sh -x
+
+CWD=`pwd`
+
+for i in ./dot.* ; do
+    ln -s $CWD/$i $HOME/$(echo $i | sed 's/dot//')
+done
+
+git clone git://github.com/robbyrussell/oh-my-zsh.git $HOME/.oh-my-zsh
+
+case $(uname) in
+Linux)
+    ( cd ../.config ; ln -s ../.rc/openbox . )
+    (
+        cd $HOME ;
+        mkdir -p .local/share ;
+        cd .local/share ;
+        ln -s ../../.rc/themes .
+    )
+    ( cd $HOME ; ln -s $CWD/fonts .fonts )
+    sudo fc-cache -f -v
+    ;;
+Darwin)
+    if [ X$(whoami) = Xroot ] ; then
+        FONTSDIR=/Library/Fonts
+    else
+        FONTSDIR=$HOME/Library/Fonts
+    fi
+    ln $CWD/fonts/*/*.ttf $FONTSDIR
+    ;;
+esac
+
+(
+    cd $HOME
+    if [ ! -d ./bin ] ; then
+        mkdir bin
+    fi
+    ln -s $CWD/bin/* ./bin
+)
+
+exit

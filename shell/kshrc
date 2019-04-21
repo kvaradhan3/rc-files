@@ -1,0 +1,7 @@
+if [ "$BASH" ] ; then
+    return
+fi
+
+for i in $HOME/.rc/shell/[0-9][0-9]*.rc ; do
+    . $i
+done

@@ -1,0 +1,23 @@
+#
+# Remove any junk set by well meaning idiot IT admins....
+# Luke 23:34?
+#
+
+unalias -m '*'
+
+# some useful aliases
+alias c='clear'
+alias h='fc -l'
+alias jo='jobs -l'
+alias m=$PAGER
+
+export CLICOLOR=
+alias ls='ls -F'
+alias ll='ls -laFo'
+alias l='ls -l'
+
+alias g='egrep -i'
+alias qlp='/usr/bin/qlmanage -p'
+
+alias p=pushd
+alias pop=popd

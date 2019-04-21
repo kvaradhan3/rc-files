@@ -1,0 +1,528 @@
+pushd_help="
+
+pushd   Save and then change the current directory. With no arguments,
+        pushd exchanges the top two directories.
+
+SYNTAX  pushd [dir | +N | -N] [-n]
+
+OPTIONS
+
+   +N   Brings the Nth directory (counting from the left of the list
+        printed by dirs, starting with zero) to the top of the list by
+        rotating the stack.
+   -N   Brings the Nth directory (counting from the right of the list
+        printed by dirs, starting with zero) to the top of the list by
+        rotating the stack.
+   =N   Bring the Nth directory (counting from the left) to the top,
+        no rotation.
+   =-N  Bring the Nth directory (counting from the right) to the top,
+        no rotation.
+   -n   Suppresses the normal change of directory when adding directories
+        to the stack, so that only the stack is manipulated.
+   dir  Makes the current working directory be the top of the stack, and
+        then executes the equivalent of \`cd dir'. cds to dir.
+
+"
+
+popd_help="
+
+popd    Remove the top entry from the directory stack, and cd to
+        the new top directory.
+
+SYNTAX  popd [+N | -N] [-n]
+
+OPTIONS
+
+   +N   Remove the Nth directory (counting from the left of the list
+        printed by dirs), starting with zero.
+
+   -N   Remove the Nth directory (counting from the right of the list
+        printed by dirs), starting with zero.
+
+   -n   Suppress the normal change of directory when removing directories from
+        the stack, so that only the stack is manipulated.
+
+When no arguments are given, popd removes the top directory from the stack and performs a cd to the new top directory.
+
+The elements are numbered from 0 starting at the first directory listed with dirs; i.e., popd is equivalent to popd +0.
+"
+
+dirs_help="
+
+dirs    Display the current directory stack.
+
+SYNTAX  dirs [+N | -N] [ -clpv ]
+
+OPTIONS
+
+    +N  Displays the Nth directory (counting from the left of the list
+        printed by dirs when invoked without options), starting with zero.
+    -N  Displays the Nth directory (counting from the right of the list 
+        printed by dirs when invoked without options), starting with zero.  
+    -c  Clears the directory stack by deleting all of the elements. 
+    -l  Produces a longer listing; the default listing format uses a tilde
+        to denote the home directory.
+    -p  Causes dirs to print the directory stack with one entry per line. 
+    -s  sanitize the DIRSTACK, remove dups, cd to DIRSTACK[0]; then print
+    -v  Causes dirs to print the directory stack with one entry per line,
+        prefixing each entry with its index in the stack.
+
+DESCRIPTION
+
+    Equivalent to 'ls -C -b'; that is, by default files are listed in columns,
+    sorted vertically, and special characters are represented by backslash
+    escape sequences.
+
+"
+
+_init() {
+    typeset +x nstack
+    typeset +x NOCD=false       # not used
+
+    set -A DIRSTACK "~"
+    set -A nstack   "${DIRSTACK[@]}"    # save stack
+    BACK="${DIRSTACK[0]}"
+    _docd
+    unset nstack NOCD
+}
+
+_setprompt() {
+    case $(/usr/bin/id -u) in
+        0)  tag='#'    ;;
+        *)  tag='$'    ;;
+    esac
+
+    export PS1="$(/usr/bin/basename "${DIRSTACK[0]}")$tag "
+
+    hostname="$(expr $(hostname) : '\([^\.]*\)')"
+    case $TERM in
+        xterm*|dtterm*)
+            echo -n "]0;$hostname$tag "${DIRSTACK[0]}"" >/dev/tty
+            ;;
+    esac
+    : ${DIRSTACK[0]}
+    unset tag hostname
+}
+
+_docd() {
+    typeset +x relative=false
+    case "${DIRSTACK[0]}" in
+        \~-)     
+            : cd BACK
+            set +A DIRSTACK "$BACK"
+            ;;
+        /*|~*)
+            : cd full-path
+            ;;
+        ./*)
+            : cd ./relative
+            : expand the entry
+            set +A DIRSTACK "$(pwd)/$(expr '${DIRSTACK[0]}' : './\(.*\)')"
+            ;;
+        *)
+            : cd relative
+            relative=true
+            ;;
+    esac
+
+    if $NOCD ; then
+        # make the stack changes, assuming the directory is kosher.
+        # DIRSTACK is already modified.  Just set BACK.
+        BACK="${nstack[0]}"
+    else
+        if \cd $(_expand "${DIRSTACK[0]}") >/dev/null ; then
+            BACK=${nstack[0]}
+            $relative && set +A DIRSTACK "$(pwd)" 
+        else
+            : cd failed, set the DIRSTACK back.
+            set -A DIRSTACK "${nstack[@]}"
+       fi
+    fi
+
+    _sanitize
+    _setprompt
+    unset relative
+}
+
+_cd() {
+    typeset +x dir="$*"
+    typeset +x nstack
+    typeset +x NOCD=false       # not used
+
+    if [ "x$dir" = "x" ] ; then
+        dir=~
+    fi
+    set -A nstack "${DIRSTACK[@]}"  # save stack
+    set +A DIRSTACK "$dir"
+    _docd
+    unset dir
+    unset nstack NOCD
+}
+
+pushd() {
+    typeset +x args
+    typeset +x nstack
+    typeset +x NOCD=false
+
+    set -A nstack "${DIRSTACK[@]}"  # save stack
+
+    args=$(_parseargs pushd n "$@")
+    if [ $? -ne 0 ] ; then
+        echo "$pushd_help" >&2
+        return 1
+    fi
+    : $args
+    set -- $args
+    shift
+
+    typeset +x DIRSET=false
+    for i
+    do
+        case $i in
+        +[0-9]*)
+            count=$(expr $i : '.\([0-9]*\).*')
+            while [ $count -gt 0 ] ; do
+                _rotateLeft 
+                count=$(expr $count - 1)
+            done
+            DIRSET=:
+            break;
+            ;;
+        -[0-9]*)
+            count=$(expr $i : '.\([0-9]*\).*')
+            while [ $count -gt 0 ] ; do
+                _rotateRight
+                count=$(expr $count - 1)
+            done
+            DIRSET=:
+            break;
+            ;;
+        =[0-9]*)
+            count=$(expr $i : '.\([0-9]*\).*')
+            _get $count
+            DIRSET=:
+            break;
+            ;;
+        =-[0-9]*)
+            count=$(expr $i : '..\([0-9]*\).*')
+            _get $(expr ${#DIRSTACK[@]} - $count)
+            DIRSET=:
+            break;
+            ;;
+        -n) NOCD=:
+            shift
+            ;;
+        --) shift ; break ;;
+        esac
+    done
+    if $DIRSET ; then
+        : ok
+    else
+        if [ "$*" ] ; then
+            _set 0 "$*"
+        else
+            _set 0 "~"
+        fi
+    fi
+    _docd
+    unset args
+    unset nstack NOCD
+}
+
+popd() {
+    typeset +x args
+    typeset +x nstack
+    typeset +x NOCD=false
+
+    set -A nstack "${DIRSTACK[@]}"  # save stack
+
+    args=$(_parseargs popd n $*)
+    if [ $? -ne 0 ] ; then
+        echo "$popd_help" >&2
+        return 1
+    fi
+    set -- $args
+    shift
+
+    for i
+    do
+        case $i in
+        +[0-9]*|=[0-9]*)
+            count=$(expr $i : '.\([0-9]*\).*')
+            _get $count
+            break;
+            ;;
+        -[0-9]*)
+            count=$(expr $i : '.\([0-9]*\).*')
+            _get $(expr ${#DIRSTACK[@]} - $count)
+            break;
+            ;;
+        =-[0-9]*)
+            count=$(expr $i : '..\([0-9]*\).*')
+            _get $(expr ${#DIRSTACK[@]} - $count)
+            break;
+            ;;
+        -n) NOCD=:
+            shift
+            ;;
+        --) shift ; break ;;
+        esac
+    done
+    _pop
+    _docd
+    unset nstack
+}
+
+dirs() {
+    typeset +x args
+    typeset +x nstack
+    typeset +x NOCD=false       # not used
+
+    set -A nstack "${DIRSTACK[@]}"  # save stack
+
+    args=$(_parseargs dirs clpsv $*)
+    if [ $? != 0 ] ; then
+        echo "$dirs_help" >&2
+        return 1
+    fi
+    
+    set -- $args
+    shift
+
+    typeset +x i
+    typeset +x LONG=false
+    typeset +x NL=false
+    typeset +x VERB=false
+    for i
+    do
+        case $i in
+        -c)
+            set -A DIRSTACK "${DIRSTACK[0]}"
+            \cd "$DIRSTACK"
+            echo "${DIRSTACK[@]}"
+            return 0
+            ;;
+        -s) _sanitize   ; shift ;;
+        -l) LONG=:      ; shift ;;
+        -p) NL=:        ; shift ;;
+        -v) VERB=: ; NL=:     ; shift ;;
+
+        --) shift ; break ;;
+        esac
+    done
+
+    if $LONG || $NL || $VERB ; then
+        typeset +x i=0
+        while [ $i -ne ${#DIRSTACK[@]} ] ; do
+            dir=${DIRSTACK[$i]}
+            $LONG && dir=$(_expand $dir)
+            $VERB && printf "%3d\t" $i
+            printf "%s  " $dir
+            $NL && echo
+            i=$(expr $i + 1)
+        done
+        $NL || echo
+    else
+        : $args
+        echo ${DIRSTACK[@]}
+    fi
+    unset args
+    unset nstack NOCD
+}
+
+_sanitize() {
+    set -A _s_nstack
+    set -A _s_ostack
+
+    set -A _s_ostack "${DIRSTACK[@]}"
+    while [ ${#_s_ostack[@]} -gt 0 ] ; do
+        set -A _s_nstack "${_s_nstack[@]}" "${_s_ostack[0]}"
+
+        _si=$(_expand ${_s_ostack[0]})
+        set -A _stmp
+        for _sj in "${_s_ostack[@]}" ; do
+            if [ "$_si" = "$(_expand $_sj)" ] ; then
+                continue
+            fi
+            set -A _stmp "${_stmp[@]}" "$_sj"
+        done
+        set -A _s_ostack "${_stmp[@]}"
+        unset _stmp
+
+    done
+
+    set -A DIRSTACK "${_s_nstack[@]}"
+    unset _s_nstack
+    unset _s_ostack
+    \cd $(_expand "${DIRSTACK[0]}")
+}
+
+_expand() {
+    for i in "$@" ; do
+        i=$(echo $i | sed 's/\/$//')
+    done
+    eval echo "$@"
+    # case $1 in
+    # ~*) eval echo $(/bin/expr "$1" : '\(~.*\)') ;;
+    # *)  echo "$@" ;;
+    # esac
+}
+
+_rotateLeft() {
+    set -A DIRSTACK "${DIRSTACK[@]}" "${DIRSTACK[0]}" # copy 0 -> bot of stack
+    _pop
+}
+
+_rotateRight() {
+    _get $(expr ${#DIRSTACK[@]} - 1)
+}
+
+_get() {
+    idx=$1
+    val=${DIRSTACK[$idx]}           # extract value at index
+    unset DIRSTACK[$idx]            # unset at index
+    set -A DIRSTACK "$val" "${DIRSTACK[@]}" # reset stack
+}
+
+_pop() {
+    unset DIRSTACK[0]               # unset 0
+    set -A DIRSTACK "${DIRSTACK[@]}"        # reset the stack
+}
+
+_set() {
+    typeset +x i nstack vstack
+    typeset +x i j dir skip
+
+    idx=$1    ; shift
+    val="$*"
+    case $idx in
+    0)    
+        set -A DIRSTACK "$val" "${DIRSTACK[@]}"
+        ;;
+    *)
+        i=0
+        imax=${#DIRSTACK[@]}
+        while [ $i < $imax ] ; do
+            if [ $i = $idx ] ; then
+                set -A vstack "${vstack[@]}" "$val"
+            fi
+            set -A vstack "${vstack[@]}" "${DIRSTACK[$i]}"
+        done
+        set -A DIRSTACK "${vstack[@]}"
+        ;;
+    esac
+}
+
+_parseargs() {
+    typeset +x args opts
+    typeset -A _opts
+    set -A args
+    prog=$1 ; shift
+    opts=$1 ; shift
+
+    typeset +x arg
+    while [ "$opts" ] ; do
+        case $opts in
+        ?:*)    arg=$(expr $opts : '\(.\):.*')
+                _opts[$arg]=1
+                opts=$(echo $opts | sed 's/^..//')
+        ;;
+        ?*)     arg=$(expr $opts : '\(.\).*')
+                _opts[$arg]=0
+                opts=$(echo $opts | sed 's/^.//')
+        ;;
+    esac
+    done
+
+    typeset +x done argsused 
+    typeset +x -i this
+    done=false
+    argsused=false
+    this=0
+
+    typeset +x i optval optarg
+    typeset +x rc
+    rc=0
+    for i
+    do
+        : $i
+        while [ "$i" ] ; do
+            if $done ; then
+                : done?
+                args[$this]=$i
+                this=$(expr $this + 1)
+                break
+            fi
+            if $argsused ; then
+                args[$this]=$i
+                this=$(expr $this + 1)
+                i=
+                argsused=false
+                continue
+            fi
+            case $i in
+            -)  i=
+                break;
+                ;;
+            --) args[$this]=$i
+                this=$(expr $this + 1)
+                done=:
+                ;;
+            -[0-9]*|+[0-9]*|=[0-9]*|=-[0-9]*)
+                : shift numeric
+                case $i in
+                =-*)    sign=$(expr $i : '\(..\).*') ;;
+                *)      sign=$(expr $i : '\(.\).*')  ;;
+                esac
+                vals=$(expr $i : '.\([0-9]*\).*')
+                rest=$(expr $i : '.[0-9]*\(.*\)')
+                args[$this]="$sign$vals"
+                this=$(expr $this + 1)
+                i="-$rest"
+                ;;
+            -*) 
+                i=$(expr $i : '-\(.*\)')           # remove the sign
+                optval=$(expr $i : '\(.\).*')   # extract the option
+                optarg=$(expr $i : '.\(.*\)')   # extract possible args
+                if [ -z "${_opts[$optval]}" ] ; then
+                    print "$prog: unknown option $optval, ignored"
+                    i=$optarg
+                    rc=$(expr $rc + 1)
+                    continue
+                fi
+                args[$this]="-$optval"
+                this=$(expr $this + 1)
+                if [ ${_opts[$optval]} -eq 1 ] ; then
+                    if [ -n "$optarg" ] ; then
+                        args[$this]=$optarg
+                        this=$(expr $this + 1)
+                    else
+                        argsused=:
+                    fi
+                    i=
+                else
+                    : no args, process the rest of the optargs.
+                    i="-$optarg"
+                fi
+                ;;
+            *)
+                : not an option
+                args[$this]="--"
+                this=$(expr $this + 1)
+                args[$this]=$i
+                this=$(expr $this + 1)
+                done=:
+                break
+                ;;
+            esac
+        done
+    done
+    echo -- ${args[@]}
+    return $rc
+}
+
+alias cd=_cd
+alias p=pushd
+alias pop=popd
+
+_init

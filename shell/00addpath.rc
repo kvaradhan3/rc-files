@@ -1,0 +1,90 @@
+
+function _contains {
+    typeset +x _ci _cenvar _cvalue IFS
+    _cenvar=$1
+    _cvalue=$2
+
+    if [ ! -x $_cvalue ] ; then
+        #
+        # If the directory does not exist, see if it is special.
+        # if it is not special, we are done.
+        # special directories are relative paths.
+        #
+        if ! /bin/expr "$_cvalue" : '\./'   >/dev/null &&
+           ! /bin/expr "$_cvalue" : '\.\./' >/dev/null ; then
+            return 0
+        fi
+    fi
+
+    oIFS=$IFS
+    IFS=: set $_cenvar
+    IFS=$oIFS
+
+    for _ci in "$@" ; do
+        if [ "$_ci" = "$_cvalue" ] ; then
+            #
+            # If the directory already exists in the path, we are done.
+            #
+            return 0
+        fi
+    done
+    return 1
+}
+
+
+function _addpath {
+    typeset +x __api
+    __api=$1
+    shift
+
+    __env=$(eval echo \$$1)
+    if   [ "x$__env" = 'x' ] ; then
+        export $1="$2"
+    elif [ "$__api" = '-p' ] ; then
+        export $1="$2:$__env"
+    else
+        export $1="$__env:$2"
+    fi
+}
+
+function _addpath_debug {
+    set -x
+    : $1
+    : CDPATH   $CDPATH
+    : PATH     $PATH
+    : INFOPATH $INFOPATH
+    : MANPATH  $MANPATH
+    set +x
+}
+
+function addpath {
+    typeset +x _api
+    P=""
+    if [ "$1" = '-p' ] ; then
+        P="-p"
+        shift
+    fi
+
+    for _api in "$@" ; do
+        if /bin/expr "X$_api" : '.*/$' >/dev/null ; then
+            _api=''
+        fi
+        _contains $PATH     "$_api/bin"  || _addpath "$P" PATH     $_api/bin
+        _contains $PATH     "$_api/sbin" || _addpath "$P" PATH     $_api/sbin
+        _contains $INFOPATH "$_api/info" || _addpath "$P" INFOPATH $_api/info
+        _contains $MANPATH  "$_api/man"  || _addpath "$P" MANPATH  $_api/man
+    done
+}
+
+function set_cdpath {
+    typeset +x _api
+    P=""
+    if [ "$1" = '-p' ] ; then
+        P="-p"
+        shift
+    fi
+
+    for _api in "$@" ; do
+        _contains $CDPATH   "$_api"      || _addpath "$P" CDPATH   $_api
+    done
+}

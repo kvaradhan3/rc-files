@@ -1,0 +1,178 @@
+#! /usr/bin/env perl
+
+use strict;
+use warnings;
+use Time::HiRes      qw/time/;
+
+use POSIX ();
+use POSIX qw(EXIT_SUCCESS EXIT_FAILURE);
+
+use File::Basename   qw/basename/;
+my $progname = basename($0);
+
+##
+use Getopt::Std;
+my  %optstrings = (
+#    'a'  => 'Add files to the ndbm cache',
+    'd'  => 'Use an ndbm cache to define the array',
+    'g'  => 'Generate the ndbm cache, argument list or files in cwd',
+    'h'  => 'Print this help',
+    'l'  => 'prefer latest, not random',
+    'A'  => '(DEBUG) Clean cache, add elements in cwd, not in cache',
+    'C'  => '(DEBUG) Clean cache, remove elements not in cwd',
+    'D'  => '(DEBUG) Print contents of ndbm cache',
+    'Q'  => '(DEBUG) Quietly',
+    'R:' => '(DEBUG) remove items matching argument',
+    'X'  => '(DEBUG) Verify contents of cache against files in cwd',
+    );
+our %opts;
+
+$Getopt::Std::STANDARD_HELP_VERSION = 1;
+sub main::HELP_MESSAGE() {
+    my $optsStr = join(' ', map { "\[-$_]" } sort keys %optstrings);
+    $optsStr =~ s/:/ <arg>/g;
+    
+    print STDERR "usage: $progname $optsStr \[arguments]\nOptions:\n";
+    map {
+        my $k = $_;
+        my $v = $optstrings{$k};
+        $k =~ s/:/ <arg>/;
+        printf "\t-%-8s  %s\n", $k, $v;
+    } sort keys %optstrings;
+    print STDERR "\n";
+}
+sub main::VERSION_MESSAGE() {
+    print STDERR "$progname version 2.0\n";
+}
+getopts(join('', keys %optstrings), \%opts);
+
+if ($opts{'h'}) {
+    &main::HELP_MESSAGE();
+    exit(EXIT_FAILURE);
+}
+
+use File::Find::Rule;
+sub gen_file_list {
+    return map {
+        File::Find::Rule->file()->in($_)
+    }  ($#ARGV >= $[) ? @ARGV : '.';
+}
+
+my $logfile = "./.values";
+my %kv;
+
+##
+# If debugging
+#
+use Fcntl;
+use NDBM_File;
+if ($opts{'D'} || $opts{'X'} || $opts{'C'} || $opts{'A'} || $opts{'R'}) {
+    my $log = sub { ; } ;
+    if (! $opts{'Q'} ) {
+        $log = sub { my $fmt = shift; printf $fmt . "\n", @_ ; } ;
+    }
+
+    tie(%kv, 'NDBM_File', $logfile, O_RDWR, 0600)
+        or die "tie(\%kv): $!";
+
+    my %flist = map { $_ => (stat($_))[9] } gen_file_list if ($opts{'X'});
+    map { delete $flist{$_} if $_ =~ /$opts{'R'}/ } keys %flist if ($opts{'R'});
+    
+    my $flag  = '***';
+    map {
+        my $val = $kv{$_};
+        my $mark = '   ';
+
+        # if checking, and a key exists, not on the directory, mark it.
+        # if cleaning, delete it from the cache.
+        #
+        if ($opts{'X'}) {
+            if (!defined($flist{$_})) {
+                $mark = $flag;
+                if ($opts{'C'}) {
+                    delete $kv{$_};
+                }
+            }
+            delete $flist{$_};
+        }
+
+        delete $kv{$_} if ($opts{'R'} && $_ =~ /$opts{'R'}/);
+        &$log("%s %-55s\t%17.6f", $mark, $_, $val);
+    } keys %kv;
+
+    # if checking, flag differences.
+    #
+    if ($opts{'X'} && scalar keys %flist > 0) {
+        &$log("\n$flag Not in db:");
+        map {
+            &$log("$flag \t$_");
+
+            # if asked to Add, do so here.
+            #
+            $kv{$_} = $flist{$_} if ($opts{'A'});
+            delete $flist{$_};
+        } keys %flist;
+    }
+
+    untie %kv;
+    exit;
+}
+
+##
+# use the ndbm cache
+if ($opts{'d'} || $opts{'a'}) {
+    tie(%kv, 'NDBM_File', $logfile, O_RDWR|O_CREAT, 0600)
+        or die "tie(\%kv <- $logfile): $!";
+
+#    # if told to add, do so.
+#    # This is, strangely, equivalent to -X -A
+#    #
+#    if ($opts{'a'}) {           # Add elements to %kv
+#        map {
+#            $kv{$_} = (stat($_))[9] unless defined($kv{$_})
+#        } gen_file_list;
+#        untie %kv;
+#        exit;
+#    }
+}
+
+# if nothing in db, recreate, add.
+# if not using db, this creates an inmemory variant.
+#
+if (scalar keys %kv <= 0) {
+#    %kv = map { $_ => (stat($_))[9] } gen_file_list();
+    die "$progname: no files to display\n";
+} 
+
+##
+if ($opts{'g'}) {
+    my $newfile = $logfile . '.new';
+    tie(my %kvg, 'NDBM_File', $newfile, O_RDWR|O_CREAT, 0600)
+        or die "tie(\%kvg <- $newfile): $!";
+    %kvg = %kv;
+    untie %kvg;
+    untie %kv;
+
+    my $oldfile = $logfile . '.old';
+    rename $logfile . '.dir', $oldfile . '.dir';
+    rename $logfile . '.pag', $oldfile . '.pag';
+    rename $newfile . '.dir', $logfile . '.dir';
+    rename $newfile . '.pag', $logfile . '.pag';
+    exit;
+}
+
+##
+use Array::Shuffle   qw/shuffle_array/;
+my @arr = keys %kv; 
+if ( $opts{'l'} ) {
+        @arr = sort { $kv{$a} <=> $kv{$b} } keys %kv;
+} else {
+        shuffle_array @arr;
+}
+my $fil = pop @arr;
+delete $kv{$fil};
+untie %kv;
+
+print STDERR $fil, "\n";
+print $fil;
+exit(EXIT_SUCCESS);

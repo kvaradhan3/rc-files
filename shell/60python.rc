@@ -1,0 +1,12 @@
+alias pdb='python /usr/lib/python2.6/pdb.py'
+alias prm='/Users/kvaradha/src/ProcMail/ProcMail.py'
+
+alias lds='ssh $USER-lds'
+
+prk() {
+    PID=$(cat ~/.ProcMail/ProcMail.pid)
+    SIG=$1
+    test "$1" && SIG=$1 || SIG=-TERM
+    kill $SIG $PID && echo "PID $PID signalled with $SIG"
+}
+

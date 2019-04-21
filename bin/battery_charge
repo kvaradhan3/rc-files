@@ -1,0 +1,145 @@
+#!/usr/bin/env python3
+# coding=UTF-8
+
+from pprint        import pprint
+import sys
+from math          import ceil
+from subprocess    import Popen, PIPE
+
+total_slots         = 10
+format_default      = 'terminal'
+
+#
+# unicode symbols of interest
+#
+unicodes = {
+    'HIGH_VOLTAGE_SIGN':                  u'⚡ ',   # U+26A1
+    'ELECTRIC_CHARGE':                    u'⌁',   # U+2301
+    'LIGHTNING_MOOD':                     u"\U0001F5F2",
+    'BLACK_RIGHTPOINTING_TRIANGLE':       u'▶',   # U+25b6
+    'WHITE_RIGHTPOINTING_TRIANGLE':       u'▷',   # U+25b7
+    'BLACK_RIGHTPOINTING_SMALL_TRIANGLE': u'▸',   # U+25b8
+    'WHITE_RIGHTPOINTING_SMALL_TRIANGLE': u'▹',   # U+25b9
+    'BLACK_RIGHTPOINTING_POINTER':        u'►',   # U+25ba
+    'WHITE_RIGHTPOINTING POINTER':        u'▻',   # U+25bb
+}
+
+class power:
+    def __init__(self):
+        try:
+            p = Popen(["ioreg", "-rc", "AppleSmartBattery"],
+                      universal_newlines=True, stdout=PIPE)
+        except OSError:
+            c = color('terminal')
+            sys.stderr.write(c.bold() + c.red() + "This runs on a mac" + c.reset() + "\n")
+            raise
+
+        state = p.communicate()[0]
+        sarr  = [l for l in state.splitlines() if ' = ' in l]
+        
+        self._state = {}
+        for l in sarr:
+            key, val = [m.strip()
+                           for m in l.rpartition('=') if m != '=']
+            self._state[key.replace('"', '')] = val
+
+    def __getPowerValue(self, *args):
+        if self._args:
+            key = self._args
+            del(self._args)
+        elif len(args) > 0:
+            key = args[0]
+        else:
+            raise ArgsError
+        return self._state[key]
+
+    def __getattr__(self, name):
+        if name in self._state.keys():
+            self._args = name
+            return self.__getPowerValue
+        else:
+            # Default behaviour
+            raise AttributeError("%s instance has no attribute '%s'" % \
+                                 (self.__class__.__name__, name))
+    def state(self):
+        return self._state
+
+class color:
+    def __init__(self, term):
+        codes = {}
+        codes['zsh_prompt'] = {
+            'reset': '%{\033[00m%}',  'bold':  '%{\033[01m%}',  'blink':  '%{\033[05m%}',
+            'red':   '%{\033[31m%}',  'green': '%{\033[32m%}',  'yellow': '%{\033[33m%}',
+        }
+        codes['terminal'] = {
+            'reset': '\033[00m',    'bold':  '\033[01m',    'blink':  '\033[05m',
+            'red':   '\033[31m',    'green': '\033[32m',    'yellow': '\033[33m',
+        }
+        codes['default'] = {
+            'reset': '',          'bold':  '',          'blink':  '',
+            'red':   '',          'green': '',          'yellow': '',
+        }
+        if term in codes.keys():
+            self._colors = codes[term]
+        else:
+            self._colors = codes['default']
+            
+    def __getColorCodes(self, *args):
+        if self._args:
+            key = self._args
+            del(self._args)
+        elif len(args) > 0:
+            key = args[0]
+        else:
+            raise ArgsError
+        return self._colors[key]
+    
+    def __getattr__(self, name):
+        if name in self._colors.keys():
+            self._args = name
+            return self.__getColorCodes
+        else:
+            return AttributeError("%s instance has no attribute'%s'" % \
+                                  (self.__class__.__name__, name))
+
+def plot(charge):
+    filled = int(ceil(total_slots * charge)) * \
+             unicodes['BLACK_RIGHTPOINTING_SMALL_TRIANGLE']
+    empty  = (total_slots - len(filled))          *  \
+             unicodes['WHITE_RIGHTPOINTING_SMALL_TRIANGLE']
+    return (filled + empty).encode('utf-8')
+
+def main(format):
+    c = color(format)
+    p = power()
+
+    charge = float(p.CurrentCapacity()) / float(p.MaxCapacity())
+    hilite = (
+               c.green()                  if charge > 0.6
+               else c.bold() + c.yellow() if charge > 0.4
+               else c.red()
+            ) 
+    bars     = plot(charge).decode('utf-8')
+    if p.ExternalConnected() == 'Yes':
+        charging = unicodes['HIGH_VOLTAGE_SIGN']
+        if p.IsCharging == 'No' and p.FullyCharged() == 'No':
+            print(c.blink())
+        print(hilite + charging, end="")
+    
+    print(hilite + bars + c.reset(), end="")
+    #print('\n')
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        if sys.argv[1] == 'dump':
+            dump   = lambda p: pprint(p)
+            format = format_default
+        else:
+            dump   = lambda *x: None
+            format = sys.argv[1]
+    else:
+        dump   = lambda *x: None
+        format = format_default
+        
+    main(format)
+    dump(power().state())

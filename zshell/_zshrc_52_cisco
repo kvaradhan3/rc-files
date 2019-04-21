@@ -1,0 +1,55 @@
+if [ ! -d /nobackup ] ; then
+    return 0
+fi
+
+#
+# Cisco overrides environment variables in the /etc/zshrc...yuck
+#
+# export PS1="%1~ %h%# "
+# export RPS1=%\* 
+
+alias emacs=emacs-23.2
+
+function my-bugs {
+    autoload -X
+    buglist $(findcr -u $USER -p CSC.ena -a NAO)
+}
+
+function find-bug {
+    autoload -X
+    findcr -p CSC.ena -s NAO -w Identified,Headline,Severity-desc \
+           -o Severity,DE-priority "$@"
+}
+
+function bug {
+    autoload -X
+    findcr -p CSC.ena -w Headline,Summary,Description "$@"
+}
+
+function find-bug {
+    autoload -X
+    findcr -p CSC.ena -s NAO -w Identified,Headline,Severity-desc \
+           -o Severity,DE-priority "$@"
+}
+
+function find-bug-by-user {
+    autoload -X
+    findcr -p CSC.ena -s NAO -w Identified,Headline,Severity-desc \
+           -o Severity,DE-priority -u $USER "$@"
+}
+
+function bug-i {
+    autoload -X
+    findcr -p CSC.ena -w Headline,Summary,Description -i "$@"
+}
+
+set_title_bar() {
+        case $TERM in
+            xterm*|dtterm*)     echo -n "]0;$@" >/dev/tty   ;;
+        esac
+}
+
+export MAKEFLAGS="TFTPHOST= COLON= COPY=cp"
+if [ -f /sw/packages/ccache/current/bin/setup-ccache ] ; then
+    . /sw/packages/ccache/current/bin/setup-ccache 
+fi

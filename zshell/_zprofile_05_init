@@ -1,0 +1,18 @@
+set_cdpath . .. $HOME $HOME/Desktop $HOME/Documents          \
+           $HOME/Drives/Dropbox                              \
+           $HOME/Drives/GoogleDrive                          \
+           $HOME/Drives/"My Gdrive"                          \
+           $HOME/Drives/"OneDrive - Juniper Networks, Inc"   \
+           $HOME/Drives/Box                                  \
+           $HOME/Drives                                      \
+           / /Volumes
+
+export MANPATH=`man -w`
+typeset -T INFOPATH infopath :
+typeset -U PATH CDPATH MANPATH INFOPATH
+#
+
+addpath    . ..
+addpath -p /usr/local $HOME
+
+umask 022

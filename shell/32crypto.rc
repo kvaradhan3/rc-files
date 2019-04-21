@@ -1,0 +1,71 @@
+HOST=`hostname`
+BASE=$HOME/.ssh/Agents
+mkdir -p $BASE
+
+eval $(gpg-agent)
+
+check_ssh_creds() {
+    # see if we have access to an agent already...
+    #
+    if ssh-add -l ;
+    then
+        : we are good.
+        return 0
+    else
+        # We may be ready, but haven't authenticated to the ssh-agent yet.
+        #
+        if expr "$(ssh-add -l 2>/dev/null)" : "The agent has no identities." ;
+        then
+            ssh-add
+            return 0
+        fi
+
+        # We may have a local agent that is not running properly.
+        #
+        if expr "$SSH_AGENT_PID" : '[0-9][0-9]*' ;
+        then
+            ssh-agent -k
+        fi
+    fi
+    return 1
+}
+
+
+#
+# Our path vars are in a horsed up state when we are here.
+# set some defaults and restore after we are through here...
+#
+
+_32PATH=$PATH
+export PATH=/usr/bin:$PATH
+
+#
+# Check if creds exist, probably remote?
+#
+
+if check_ssh_creds >/dev/null 2>&1 ;
+then
+    : we are good
+else
+    : Source ssh info for this host, if it exists...
+    if [ -f $BASE/$HOST.rc ] ; then
+        . $BASE/$HOST.rc >/dev/null
+    fi
+
+    if check_ssh_creds >/dev/null 2>&1 ; then
+        : ok, we are good
+    else
+        : start a local agent
+        echo -n on $HOST "  "
+        ssh-agent -s 2>&1 >$BASE/$HOST.rc
+        . $BASE/$HOST.rc
+        ssh-add
+    fi
+fi
+
+if [ ! -f $BASE/$HOST.rc ] ; then
+    env | egrep '^SSH\|^DISPLAY=' > $BASE/$HOST.rc
+fi
+
+export PATH=$_32PATH
+unset  _32PATH

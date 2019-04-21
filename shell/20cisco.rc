@@ -1,0 +1,9 @@
+alias lds='ssh $USER-lds'
+alias sims='. /auto/edatools/oicad/tools/vxr_user/vxr_latest/setup.sh'
+
+export MAKEFLAGS="TFTPHOST= COLON= COPY=cp"
+if [ -f /sw/packages/ccache/current/bin/setup-ccache ] ; then
+    . /sw/packages/ccache/current/bin/setup-ccache
+fi
+
+addpath -p /nobackup/$USER /auto/wskvaradha-sjc /usr/cisco /current /usr/atria

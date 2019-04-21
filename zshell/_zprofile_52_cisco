@@ -1,0 +1,11 @@
+if [ ! -d /nobackup ] ; then
+    return 0
+fi
+
+addpath -p /nobackup/$USER /auto/ws$USER-sjc 
+addpath -p /router /auto/xrut
+addpath -p /usr/cisco /current /usr/atria /auto/iox
+set_cdpath /nobackup/$USER /nobackup /auto/ws$USER-sjc /tftpboot/$USER
+
+export ACME_DIFF_OPTS='-u -b -B -p'
+

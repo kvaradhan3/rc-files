@@ -1,0 +1,14 @@
+function set_cdpath {
+    local _api _P
+    _P=""
+    if [ "$1" = '-p' ] ; then
+        _P="-p"
+        shift
+    fi
+
+    for _api in "$@" ; do
+        _addpath "$_P" cdpath   $_api
+    done
+}
+
+autoload _addpath && _addpath

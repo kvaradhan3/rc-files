@@ -1,0 +1,69 @@
+set_dirstack() {
+}
+rotate_left() {
+	: '>>' rotate_left"($@)"
+	_set_dirstack remove 1
+}
+	
+rotate_right() {
+}
+
+length() {
+	: '>>' length"($1)"
+	list=$1;			# copy arg
+	set $list;			# set positional args
+
+	last_opt=$1; shift		# first arg is special
+	echo $#
+}
+
+splice() {
+}
+shift() {
+}
+unshift() {
+}
+push() {
+}
+pop() {
+}
+
+get_match() {
+	: '>>' get_match"($@)"
+	list=$1;			# copy arg
+	set $list;			# set positional args
+
+	last_opt=$1; shift		# first arg is special
+	echo $last_opt
+}
+
+get_first() {
+	: '>>' get_first"($@)"
+	list=$1;			# copy arg
+	set $list;			# set positional args
+
+	last_opt=$1; shift		# first arg is special
+	echo $1
+}
+
+get_rest() {
+	: '>>' get_rest"($@)"
+	list=$1;			# copy arg
+	set $list;			# set positional args
+
+	last_opt=$1; shift		# first arg is special
+	shift
+	echo "$@"
+}
+
+get_all() {
+	: '>>' get_all"($@)"
+	list=$1;			# copy arg
+	set $list;			# set positional args
+
+	last_opt=$1; shift		# first arg is special
+	echo "$@"
+}
+
+alias car=get_first
+alias cdr=get_rest

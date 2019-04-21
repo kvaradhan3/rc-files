@@ -1,0 +1,7 @@
+
+addpath    . ..
+addpath -p $HOME $HOME/Documents $HOME/Desktop
+addpath -p /opt/local 
+
+set_cdpath . .. $HOME $HOME/Desktop $HOME/Documents /Volumes
+

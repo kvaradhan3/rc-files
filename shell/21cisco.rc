@@ -1,0 +1,19 @@
+connect() {
+    : > ~/.ssh/known_hosts
+    case $1 in
+    shell|ssh)     cmd=ssh;  args="-p $2"     ;;
+    ftp|sftp)      cmd=sftp; args="-oPort=$2" ;;
+    copy|scp)      cmd=scp;  args="-P $2"     ;;
+    esac
+    shift; shift;
+    echo : $cmd $args "$@"
+    $cmd $args "$@"
+}
+
+ports() {
+        find . -name PortVector.txt                              | \
+                xargs grep -i calvadosssh                        | \
+                sort                                             | \
+                awk -F/ '{ print $4, $5 }'                       | \
+                awk     '{ printf "%s\t%s\n", $1, $3 }'
+}

@@ -1,0 +1,8 @@
+
+.zcompdump*
+fonts.dir
+fonts.scale
+.#*
+*~
+.emacs-flc
+.*.sw*

@@ -1,0 +1,91 @@
+# my resources
+#
+J_MYHOSTS="a5s1 a5s11 a5s32"
+J_MYADDRS="a5s1-vm1
+           a5s1-vm2
+           a5s1-vm3
+           a5s1-vm4
+           a5s1-vm5
+           a5s1-vm6
+           a5s1-vm7
+           a5s1-vm8
+           a5s1-vm9
+           a5s1-vm10
+           a5s1-vm11
+           a5s1-vm12
+           a5s1-vm13
+           a5s1-vm14
+           a5s1-vm15
+           a5s1-vm16"
+
+J_MY_ADDRPOOL="
+a5s1            |a5s1-vm1.englab.juniper.net      |10.84.14.101   |
+a5s1            |a5s1-vm2.englab.juniper.net      |10.84.14.102   |
+a5s1            |a5s1-vm3.englab.juniper.net      |10.84.14.103   |
+a5s1            |a5s1-vm4.englab.juniper.net      |10.84.14.104   |
+a5s1            |a5s1-vm5.englab.juniper.net      |10.84.14.105   |
+a5s1            |a5s1-vm6.englab.juniper.net      |10.84.14.106   |
+a5s1            |a5s1-vm7.englab.juniper.net      |10.84.14.107   |
+a5s1            |a5s1-vm8.englab.juniper.net      |10.84.14.108   |
+a5s1            |a5s1-vm9.englab.juniper.net      |10.84.14.109   |
+a5s1            |a5s1-vm10.englab.juniper.net     |10.84.14.110   |
+a5s1            |a5s1-vm11.englab.juniper.net     |10.84.14.111   |
+a5s1            |a5s1-vm12.englab.juniper.net     |10.84.14.112   |
+a5s1            |a5s1-vm13.englab.juniper.net     |10.84.14.113   |
+a5s1            |a5s1-vm14.englab.juniper.net     |10.84.14.114   |
+a5s1            |a5s1-vm15.englab.juniper.net     |10.84.14.115   |
+a5s1            |a5s1-vm16.englab.juniper.net     |10.84.14.116   |
+"
+
+_check_hosts() {
+    if [ "$1" = '-f' ] ; then
+        NOPING=:
+        shift
+    else
+        NOPING=ping
+    fi
+    for i in "$@" ; do
+        echo -n "$(dig $i.englab.juniper.net in any | sed -n '/^;; ANSWER/,/^$/p' | grep -v ANSWER | head -1)"
+        if $NOPING -c 2 -W 30 $i.englab.juniper.net >/dev/null 2>&1 ; then
+            echo "	OK"
+        else
+            echo "	NOT OK"
+        fi
+    done
+}
+
+j-ids() {
+    _x=$1
+    case ${_x:-nick} in
+    'sanjua')
+        cUSER='JNPR-Customer200'
+        cPASS='FSg0vLW^7oM#GZy8Ju*f'
+        ;;
+    'dp')
+        cUSER='JNPR-FieldUser130'
+        cPASS='vEdq6Cngc4pxAJsNH5MX'
+        ;;
+    'nick')
+        cUSER='JNPR-FieldUser146'
+        cPASS='pR28amsNcV7zwXfEQHD6'
+        ;;
+    esac
+    echo "export cUSER='$cUSER'"
+    echo "export cPASS='$cPASS'"
+}
+
+j-my-hosts() {
+    _check_hosts `echo $J_MYHOSTS`
+}
+
+j-my-address_pool() {
+    if [ "$1" = '-f' ] ; then
+        ARGS='-f'
+    else
+        ARGS=
+    fi
+    _check_hosts $ARGS `echo $J_MYADDRS`
+}
+
+pknc() {
+}

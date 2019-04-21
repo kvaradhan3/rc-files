@@ -1,0 +1,16 @@
+addpath /usr/local/fungible
+export WORKSPACE=${WORKSPACE:-/usr/local/Fungible/src}
+
+function setws() {
+    _ws=
+    if [ -n "$1" -a -d $WORKSPACE/$1 ] ; then
+            _ws="$1"
+    fi
+    _wd=$(pwd)
+    cd $WORKSPACE/$_ws
+    WORKSPACE=$WORKSPACE/$_ws $SHELL
+    cd $_wd
+    unset _ws _wd
+}
+        
+

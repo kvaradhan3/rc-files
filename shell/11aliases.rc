@@ -1,0 +1,41 @@
+# some useful aliases
+alias c='clear'
+alias h='fc -l'
+alias j='jobs -l'
+alias m=$PAGER
+alias ls='ls -F'
+alias ll='ls -laFo'
+alias l='ls -l'
+alias g='egrep -i'
+ 
+# # be paranoid
+# alias cp='cp -ip'
+# alias mv='mv -i'
+# alias rm='rm -i'
+
+alias qlp='/usr/bin/qlmanage -p'
+# alias vlc=/Applications/VLC.app/Contents/MacOS/VLC
+
+function vlc {
+    VLC=/Applications/VLC.app/Contents/MacOS/VLC
+    if [ $# = 0 ] ; then
+        $VLC
+    fi
+    FILE=$1 ; shift
+    if [ "X$FILE" = 'X-r' ] ; then
+        DIR=$1 ; shift
+        FILE=$DIR/$(ruby2.0 -e "puts Dir.entries('$DIR').select {|f| !File.directory? f}.sample")
+    fi
+
+    if [ ! -f "$FILE" ] ; then
+        echo "vlc: file $FILE does not exist" >&2
+        return 1
+    fi
+
+    set -x
+    : vlc $FILE
+    set +x
+
+    $VLC "$FILE" 2>&-
+    return
+}

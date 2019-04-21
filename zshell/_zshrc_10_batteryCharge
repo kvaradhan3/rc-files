@@ -1,0 +1,48 @@
+function _ioreg {
+    ioreg -rc AppleSmartBattery | awk '/''"'"$1"'"''/ { print $3 }'
+}
+
+function bcharge {
+    red="%{\033[31m%}"
+    grn="%{\033[32m%}"
+    yel="%{\033[33m%}"
+    reset="%{\033[00m%}"
+
+    bars=10
+
+    maxCap=$(      _ioreg MaxCapacity           )
+    curCap=$(      _ioreg CurrentCapacity       )
+    extConn=$(     _ioreg ExternalConnected     )
+    extCharging=$( _ioreg ExternalChargeCapable )
+
+    charge=$(echo "$bars * $curCap / $maxCap" | bc)
+    if   [[ $charge -gt $( expr 6 \* $bars / 10 ) ]] ; then
+        colour=$grn
+    elif [[ $charge -ge $( expr 4 \* $bars / 10 ) ]] ; then
+        colour=$yel
+    else
+        colour=$red
+    fi
+
+    if [[ $extConn = 'Yes' && $extCharging = 'Yes' ]] ; then
+        ac="$(printf '\u26A1') "
+    else
+        ac=''
+    fi
+
+    fmt=''
+    i=0
+    while test $i -ne $charge  ; do
+        fmt=$fmt$( printf "\u25b8" )
+        i=$(expr $i + 1)
+    done
+    while test $i -ne $bars ; do
+        fmt=$fmt$( printf "\u25b9" )
+        i=$(expr $i + 1)
+    done
+
+    print "${colour}${ac}${fmt}${reset}"
+}
+ 
+setopt promptsubst
+export RPROMPT='$(bcharge) %*'

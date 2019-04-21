@@ -1,0 +1,12 @@
+
+export FPATH=$HOME/.rc/shell/ksh_functions
+
+typeset -fu addpath
+
+export PS1='$ '
+export EDITOR=vi
+export PRINTER=sjc15-03-g6-11-cx
+export CPRINTER=sjc15-03-g6-11-cx
+export ENV=$HOME/.rc/shell/kshrc
+
+trap '. ~/.rc/shell/ksh_logout' EXIT
