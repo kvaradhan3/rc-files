@@ -1,17 +1,3 @@
-(defun where-is-this-library (library)
-  "Find the directory where a library is to be found"
-  (interactive "sLibrary? ")
-  (let ((found 0))
-    (dolist (dir load-path)
-      (if (file-exists-p (concat dir "/" library))
-	  (progn
-	    (setq found (+ found 1))
-	    (message "\t%d.  %s" found dir)
-	    )))
-    (if (= found 0)
-	(message "%s is not in your load-path" library))
-    ))
-
 (defun q-print-list (lst)
   "Dump a list in readable format"
   (interactive "vList-name? ")
