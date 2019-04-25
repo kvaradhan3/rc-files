@@ -20,14 +20,15 @@
 ;; (add-to-list 'load-path "/Users/kvaradha/src/emacs-w3m")
 
 (let ((addl-dirs additional-directories) (directory) (default-directory))
-  (while (setq directory (expand-file-name (car addl-dirs)))
-    (setq default-directory (format "%s/emacs/site-lisp" directory))
+  (while (setq directory (car addl-dirs))
+    (setq default-directory (expand-file-name
+                             (format "%s/emacs/site-lisp" directory)))
     (condition-case err
 	(progn
 	  (normal-top-level-add-to-load-path '("."))
 	  (normal-top-level-add-subdirs-to-load-path)
 	  )
-      (error (message (format "%s" err))))
+      (error "%s" err))
 
     (add-to-list 'Info-default-directory-list (format "%s/info" directory))
     (setq addl-dirs (cdr addl-dirs))))
