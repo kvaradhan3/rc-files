@@ -49,7 +49,7 @@ COMPLETION_WAITING_DOTS="true"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git git-auto-fetch brew 		\
          chucknorris ruby  autojump tmux		\
-         docker docker-compose docker-machine vagrant virtualenv kubectl)
+         docker docker-compose docker-machine vagrant virtualenv)
 
 # User configuration
 
