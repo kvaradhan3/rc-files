@@ -43,8 +43,6 @@
 
 (define-key global-map (kbd "s-p") 'send-to-printer)
 
-(provide 'rc/04print)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

@@ -9,8 +9,6 @@
 
 (add-hook 'notes-variables-load-hooks 'notes-mkall)
 
-(provide 'rc/50notes)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

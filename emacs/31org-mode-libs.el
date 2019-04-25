@@ -58,8 +58,6 @@
          (org-table-align))
     (org-table-fix-formulas "@" nil (1- (org-table-current-dline)) n)))
 
-(rc-file-done 'rc/30org-mode-libs)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

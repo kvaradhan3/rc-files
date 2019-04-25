@@ -112,8 +112,6 @@
                 ) auto-mode-alist))
 
 
-(provide 'rc/20c)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

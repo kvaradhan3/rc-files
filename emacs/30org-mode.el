@@ -75,8 +75,6 @@
 (setq org-tags-exclude-from-inheritance (quote ("crypt")))
 (setq org-crypt-key "kannan@ieee.org")
 
-(rc-file-done 'rc/30org-mode)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

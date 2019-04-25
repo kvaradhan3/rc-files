@@ -1,8 +1,6 @@
 (autoload 'nim-mode "nim-mode.el")
 (add-to-list 'auto-mode-alist           '("\\.nim\\'" . nim-mode))
 
-(provide 'rc/22nim)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

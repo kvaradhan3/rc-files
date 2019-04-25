@@ -7,8 +7,6 @@
 	    (setq ruby-indent-level 4)
 	    ))
 
-(provide 'rc/24ruby)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

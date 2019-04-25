@@ -7,8 +7,6 @@
   (setq xml-slash-auto-complete-flag	t))
 (add-hook 'xml-mode-hook	'my-xml-mode-hooks)
 
-(provide 'rc/35xml-mode)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

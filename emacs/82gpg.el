@@ -1,8 +1,6 @@
 (require 'epa-file)
 (epa-file-enable)
 
-(provide 'rc/82gpg)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

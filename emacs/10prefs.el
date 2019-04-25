@@ -89,8 +89,6 @@
       (append Info-default-directory-list
 	      (list (expand-file-name "~/lib/info"))))
 
-(provide 'rc/10prefs)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

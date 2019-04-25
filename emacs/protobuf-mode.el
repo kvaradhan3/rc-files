@@ -215,6 +215,4 @@ Key bindings:
   (c-run-mode-hooks 'c-mode-common-hook 'protobuf-mode-hook)
   (c-update-modeline))
 
-(provide 'protobuf-mode)
-
 ;;; protobuf-mode.el ends here

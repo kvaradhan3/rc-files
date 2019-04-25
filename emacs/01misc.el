@@ -35,8 +35,6 @@
 
 (add-hook 'before-save-hook 'time-stamp)
 
-(provide 'rc/01misc)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

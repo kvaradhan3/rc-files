@@ -15,8 +15,6 @@
 
 (setq-default indent-tabs-mode nil)
 
-(provide 'rc/12modes)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

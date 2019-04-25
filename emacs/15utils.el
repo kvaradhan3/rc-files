@@ -20,8 +20,6 @@
   (interactive)
   (file-name-nondirectory (directory-file-name path)))
 
-(provide 'rc/10prefs)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

@@ -16,8 +16,6 @@
 		 '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
 (package-initialize)
 
-(rc-file-done 'rc/05melpa)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

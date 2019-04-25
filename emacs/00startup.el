@@ -2,14 +2,6 @@
 ;; Fix up the load path with what's desired.
 ;;
 
-(setq rc-files-processed nil)
-(defun rc-file-done (file-name)
-  "Add file-name to rc-files-processed, indicate that it is
-   successfully provided."
-  (add-to-list 'rc-files-processed file-name)
-  (provide file-name)
-)
-
 (setq additional-directories
       '("/usr/local/share"
 	"~/lib"
@@ -29,9 +21,9 @@
 	  (normal-top-level-add-subdirs-to-load-path)
 	  )
       (error "%s" err))
-
     (add-to-list 'Info-default-directory-list (format "%s/info" directory))
     (setq addl-dirs (cdr addl-dirs))))
+
 
 ;;; (add-to-list 'exec-path "/opt/local/bin")
 ;;; (add-to-list 'exec-path "/opt/local/sbin")
@@ -43,8 +35,6 @@
 (setq debug-on-error t)
 
 (add-hook 'before-save-hook	'time-stamp)
-
-(rc-file-done 'rc/00startup)
 
 ;
 ;;; Local Variables:

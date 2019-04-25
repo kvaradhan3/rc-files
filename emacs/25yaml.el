@@ -8,8 +8,6 @@
 	    (setq yaml-indent-offset 4)
 	    ))
 
-(provide 'rc/25yaml)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

@@ -6,9 +6,12 @@
 (package-initialize)
 
 (defconst emacs-rc-dir "~/.rc/emacs")
+(setq rc-files-processed nil)
 (dolist (curFile (directory-files (expand-file-name emacs-rc-dir)
                                   t "^[0-9][0-9].*.el$"))
-  (load-file curFile))
+  (load-file curFile)
+  (push (file-name-base curFile) rc-files-processed))
+(setq rc-files-processed (reverse rc-files-processed))
 
 (put 'eval-expression 'disabled nil)
 (put 'downcase-region 'disabled nil)

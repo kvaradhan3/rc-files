@@ -38,7 +38,6 @@
 (global-set-key (kbd "C-c c")   'org-insert-cpol)
 (global-set-key (kbd "C-c r")	'remember)
 
-(provide 'rc/90keys)
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

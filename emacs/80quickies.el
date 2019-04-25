@@ -12,8 +12,6 @@
       (princ (format ")\n")))
     ))
 
-(provide 'rc/80quickies)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp

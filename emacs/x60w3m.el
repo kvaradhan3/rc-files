@@ -2,8 +2,6 @@
 
 (require 'w3m-load)
 
-(provide 'rc/60w3m)
-
 ;
 ;;; Local Variables:
 ;;; mode: Emacs-Lisp
