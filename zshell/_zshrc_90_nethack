@@ -1,13 +1,13 @@
 
-for i in /usr/games/nethack         \
+for _i in /usr/games/nethack        \
          /opt/local/bin/nethack     \
          /usr/local/bin/nethack     \
          /usr/local/bin/nethack4    \
          /usr/local/bin/nethacked   \
          ; do
 
-    if [ -x $i ] ; then
-        addpath $(dirname $i)
+    if [ -x $_i ] ; then
+        addpath $(dirname $_i)
         export NETHACKOPTIONS=time,rest_on_space,hilite_pet,!mail,pickup_types='$"/?!='
         break
     fi
