@@ -11,33 +11,18 @@ function addpath {
         shift
     fi
 
-    local expr
-    if   [ -x /bin/expr ] ; then
-        expr=/bin/expr 
-    elif [ -x /usr/bin/expr ] ; then
-        expr=/usr/bin/expr
-    else
-        expr=:
-    fi
-
     for _api in "$@" ; do
-        if $expr "X$_api" : '.*/$' >/dev/null ; then
-            : trim the trailing /
-            _api=$(echo $_api | sed 's/\/$//')
-        fi
-        if   $expr "X$_api" : '.*/bin$'  >/dev/null ; then
-            : trim the trailing bin
-            _api=$(echo $_api | sed 's/\/bin$//')
-        elif $expr "X$_api" : '.*/sbin$' >/dev/null ; then
-            : trim the trailing sbin
-            _api=$(echo $_api | sed 's/\/sbin$//')
-        elif $expr "X$_api" : '.*/info$' >/dev/null ; then
-            : trim the trailing info
-            _api=$(echo $_api | sed 's/\/info$//')
-        elif $expr "X$_api" : '.*/man$'  >/dev/null ; then
-            : trim the trailing info
-            _api=$(echo $_api | sed 's/\/man$//')
-        fi
+        : trim the trailing /
+        _api=$(echo $_api | sed 's/\/$//')
+
+        case $(basename $_api) in
+        bin)    _api=$(echo $_api | sed 's/\/bin$//')   ;;
+        sbin)   _api=$(echo $_api | sed 's/\/sbin$//')  ;;
+        info)   _api=$(echo $_api | sed 's/\/info$//')  ;;
+        man)    _api=$(echo $_api | sed 's/\/man$//')   ;;
+        *)      ;;
+        esac
+
         _addpath "$_P" path      $_api/bin $_api/sbin
         _addpath "$_P" infopath  $_api/info
         _addpath "$_P" manpath   $_api/man

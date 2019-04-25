@@ -1,1 +1,2 @@
+alias ksinit='source ~/.oh-my-zsh/plugins/kubectl/kubectl.plugin.zsh'
 alias ks='kubectl -n kube-system'
