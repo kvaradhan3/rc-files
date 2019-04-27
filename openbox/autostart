@@ -4,7 +4,10 @@
 # to run user-specific things.
 #
 xrdb -load $HOME/.Xresources
-x-www-browser &
+# x-www-browser &
 x-terminal-emulator &
+# firefox &
 # urxvt -rv -geometry 80x24+0+0 -C -title "`hostname` Console" -e watch tail -10 /var/log/syslog
+clamtk &
+synapse &
 conky -c $HOME/lib/conky/conky.conf
