@@ -1,5 +1,30 @@
 function _ioreg {
-    ioreg -rc AppleSmartBattery | awk '/''"'"$1"'"''/ { print $3 }'
+    case $(uname -s) in
+    Darwin)
+        ioreg -rc AppleSmartBattery | awk '/''"'"$1"'"''/ { print $3 }'
+        ;;
+    Linux)
+        PWR=/sys/class/power_supply
+        case $1 in
+        MaxCapacity)
+            cat $PWR/BAT0/charge_full_design
+            ;;
+        CurrentCapacity)
+            cat $PWR/BAT0/charge_now
+            ;;
+        ExternalConnected|ExternalChargeCapable)
+            if [ $(cat $PWR/AC/online) -eq 0 ] ; then
+                print No
+            else
+                print Yes
+            fi
+            ;;
+        esac
+        ;;
+    *)
+        print ''
+        ;;
+    esac
 }
 
 function bcharge {
