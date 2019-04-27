@@ -1,0 +1,30 @@
+if [ -t 0 ] ; then
+    atime() {
+        case $(uname -s) in
+        Linux)  stat -c %Y $1  ;;
+        Darwin) stat -Lf %m $1 ;;
+        *)      return 0       ;;
+        esac
+    }
+
+    
+    if [[ $(( $(atime ~/.zshrc) + 2 * 24 * 60 * 60 )) -gt $(date +%s) ]] ; then
+        : nothing
+    else
+        case $(uname -s) in
+        Linux)
+            if egrep -i 'ubuntu|debian' /etc/os-release >/dev/null 2>&1; then
+                /usr/lib/update-notifier/apt-check -p
+            elif egrep -i 'centos|rhel|fedora' /etc/os-release >/dev/null 2>&1; then
+                yum list upgradeable
+            else
+                echo 'unknown OS type, cannot check for software updates' >&2
+            fi
+            ;;
+        Darwin)
+            /usr/sbin/softwareupdate -l
+            ;;
+        esac
+        touch -m ~/.zshrc
+    fi
+fi
