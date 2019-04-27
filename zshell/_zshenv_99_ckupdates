@@ -1,0 +1,22 @@
+if [ -t 0 ] ; then
+    case $(uname -s) in
+    Linux)
+        if test -f /etc/os-release; then
+            if grep -i 'ubuntu|debian' /etc/os-release >/dev/null ; then
+                /usr/lib/update-notifier/apt-check -p
+                echo
+            elif grep -i 'centos|rhel|fedora' /etc/os-release >/dev/null ; then
+                yum list upgradeable
+                echo
+            else
+                echo "unknown OS type, cannot check for software updates' >&2
+            fi
+        else
+            echo "unknown OS type, cannot check for software updates' >&2
+        fi
+        ;;
+    Darwin)
+        /usr/sbin/softwareupdate -l
+        ;;
+    esac
+fi
