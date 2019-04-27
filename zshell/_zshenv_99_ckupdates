@@ -9,10 +9,10 @@ if [ -t 0 ] ; then
                 yum list upgradeable
                 echo
             else
-                echo "unknown OS type, cannot check for software updates' >&2
+                echo 'unknown OS type, cannot check for software updates' >&2
             fi
         else
-            echo "unknown OS type, cannot check for software updates' >&2
+            echo 'unknown OS type, cannot check for software updates' >&2
         fi
         ;;
     Darwin)
