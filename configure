@@ -3,18 +3,19 @@
 CWD=`pwd`
 
 for i in ./dot.* ; do
-    ln -s $CWD/$i $HOME/$(echo $i | sed 's/dot//')
+    ln -f $CWD/$i $HOME/$(echo $i | sed 's/dot//')
 done
 
 git clone git://github.com/robbyrussell/oh-my-zsh.git $HOME/.oh-my-zsh
 
 case $(uname) in
 Linux)
-    ( cd ../.config ; ln -s ../.rc/openbox . )
+    ( cd ../.config ; rm -f openbox ; ln -s ../.rc/openbox . )
     (
         cd $HOME ;
         mkdir -p .local/share ;
         cd .local/share ;
+        rm -f ./themes
         ln -s ../../.rc/themes .
     )
     ( cd $HOME ; ln -s $CWD/fonts .fonts )
@@ -26,7 +27,7 @@ Darwin)
     else
         FONTSDIR=$HOME/Library/Fonts
     fi
-    ln $CWD/fonts/*/*.ttf $FONTSDIR
+    ln -f $CWD/fonts/*/*.ttf $FONTSDIR
     ;;
 esac
 
@@ -35,7 +36,7 @@ esac
     if [ ! -d ./bin ] ; then
         mkdir bin
     fi
-    ln -s $CWD/bin/* ./bin
+    ln -f -s $CWD/bin/* ./bin
 )
 
 exit
