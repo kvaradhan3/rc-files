@@ -1,18 +1,18 @@
 if [ -t 0 ] ; then
-    atime() {
-        case $(uname -s) in
-        Linux)  stat -c %Y $1  ;;
-        Darwin) stat -Lf %m $1 ;;
-        *)      return 0       ;;
-        esac
-    }
+    SYSTYPE=$(uname -s | tr 'A-Z' 'a-z')
+
+    case $SYSTYPE in
+    linux)  STATARGS='-c %Y'  ;;
+    darwin) STATARGS='-Lf %m' ;;
+    *)      STATARGS='-c %Y'  ;;
+    esac
 
     
-    if [[ $(( $(atime ~/.zshrc) + 2 * 24 * 60 * 60 )) -gt $(date +%s) ]] ; then
+    if [[ $(( $(stat $STATARGS ~/.zshrc) + 2 * 24 * 60 * 60 )) -gt $(date +%s) ]] ; then
         : nothing
     else
-        case $(uname -s) in
-        Linux)
+        case $SYSTYPE in
+        linux)
             if egrep -i 'ubuntu|debian' /etc/os-release >/dev/null 2>&1; then
                 /usr/lib/update-notifier/apt-check -p
             elif egrep -i 'centos|rhel|fedora' /etc/os-release >/dev/null 2>&1; then
@@ -21,10 +21,14 @@ if [ -t 0 ] ; then
                 echo 'unknown OS type, cannot check for software updates' >&2
             fi
             ;;
-        Darwin)
+        darwin)
             /usr/sbin/softwareupdate -l
             ;;
+        *)
+            print "$(basename $0): unknown $SYSTYPE, updates check not done\n" >&2
+            ;;
         esac
-        touch -m ~/.zshrc
+        print "\n---\n" >&2
+        touch -m $0
     fi
 fi
