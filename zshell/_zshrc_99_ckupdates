@@ -8,7 +8,7 @@ if [ -t 0 ] ; then
     esac
 
     
-    if [[ $(( $(stat $STATARGS ~/.zshrc) + 2 * 24 * 60 * 60 )) -gt $(date +%s) ]] ; then
+    if [[ $(( $(stat $STATARGS $0) + 2 * 24 * 60 * 60 )) -gt $(date +%s) ]] ; then
         : nothing
     else
         case $SYSTYPE in
