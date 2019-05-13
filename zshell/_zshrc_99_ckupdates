@@ -2,8 +2,8 @@ if [ -t 0 ] ; then
     SYSTYPE=$(uname -s | tr 'A-Z' 'a-z')
 
     case $SYSTYPE in
-    linux)  STATARGS='-c %Y'  ;;
     darwin) STATARGS='-Lf %m' ;;
+    linux)  STATARGS='-c %Y'  ;;
     *)      STATARGS='-c %Y'  ;;
     esac
 
@@ -12,20 +12,21 @@ if [ -t 0 ] ; then
         : nothing
     else
         case $SYSTYPE in
+        darwin)
+            /usr/sbin/softwareupdate -l
+            ;;
         linux)
             if egrep -i 'ubuntu|debian' /etc/os-release >/dev/null 2>&1; then
                 /usr/lib/update-notifier/apt-check -p
             elif egrep -i 'centos|rhel|fedora' /etc/os-release >/dev/null 2>&1; then
                 yum list upgradeable
             else
-                echo 'unknown OS type, cannot check for software updates' >&2
+                . /etc/os-release
+                print "$(basename $0): unknown $(uname -s) type:$ID/$ID_LIKE, updates check not done\n" >&2
             fi
             ;;
-        darwin)
-            /usr/sbin/softwareupdate -l
-            ;;
         *)
-            print "$(basename $0): unknown $SYSTYPE, updates check not done\n" >&2
+            print "$(basename $0): unknown system $(uname -s), updates check not done\n" >&2
             ;;
         esac
         print "\n---\n" >&2
