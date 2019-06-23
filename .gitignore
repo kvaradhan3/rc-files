@@ -6,3 +6,5 @@ fonts.scale
 *~
 .emacs-flc
 .*.sw*
+rc.xml
+.uuid
