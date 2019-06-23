@@ -14,7 +14,7 @@ my $progname = basename($0);
 use Getopt::Std;
 my  %optstrings = (
 #    'a'  => 'Add files to the ndbm cache',
-    'd'  => 'Use an ndbm cache to define the array',
+    'd:'  => 'Use an ndbm cache to define the array',
     'g'  => 'Generate the ndbm cache, argument list or files in cwd',
     'h'  => 'Print this help',
     'l'  => 'prefer latest, not random',
@@ -58,7 +58,7 @@ sub gen_file_list {
     }  ($#ARGV >= $[) ? @ARGV : '.';
 }
 
-my $logfile = "./.values";
+my $logfile = $opts{'d'} || "./.values";
 my %kv;
 
 ##
