@@ -8,7 +8,7 @@ for _i in /usr/games/nethack        \
 
     if [ -x $_i ] ; then
         addpath $(dirname $_i)
-        export NETHACKOPTIONS=time,rest_on_space,hilite_pet,!mail,pickup_types='$"/?!='
+        export NETHACKOPTIONS=eight_bit_tty,hilite_pet,rest_on_space,showexp,time,!mail,pickup_types='$"/?!=',boulder=Ö
         break
     fi
 done
