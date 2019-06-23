@@ -1,42 +1,143 @@
-#! /bin/sh -x
+#! /bin/sh
 
-CWD=`pwd`
+usage() {
+   echo "Usage: $(basename $0) [-u]" 1>&2 ;
+   exit 1;
+}
 
-for i in ./dot.* ; do
-    ln -f $CWD/$i $HOME/$(echo $i | sed 's/dot//')
+while getopts "u" o; do
+    case "${o}" in
+        u)  INSTALL=uninstall   ;;
+        *)  usage               ;;
+    esac
 done
+shift $((OPTIND-1))
 
-git clone git://github.com/robbyrussell/oh-my-zsh.git $HOME/.oh-my-zsh
+PGM=$(basename $0)
+if expr "$0" : '/.*' >/dev/null ; then
+    CWD=$(dirname  $0)
+else
+    CWD=$(pwd)
+fi
+INSTALL=${INSTALL:-install}
+SYS=$(uname)
 
-case $(uname) in
-Linux)
-    ( cd ../.config ; rm -f openbox ; ln -s ../.rc/openbox . )
-    (
-        cd $HOME ;
-        mkdir -p .local/share ;
-        cd .local/share ;
-        rm -f ./themes
-        ln -s ../../.rc/themes .
-    )
-    ( cd $HOME ; ln -s $CWD/fonts .fonts )
+getInode() {
+    case $SYS in
+    Linux)  stat -c %i "$1" ;;
+    Darwin) stat -f %i "$1" ;;
+    esac
+}
+
+link() {
+    if [ -e "$2" ] ; then
+        mv $2 $2.ORIG
+    fi
+    if [ -d $1 ] ; then
+        ln -s -f $1 $2
+    else
+        ln -f $1 $2
+    fi
+    echo $PGM: link $2 to $1 1>&2
+}
+
+delink() {
+    if [ -f $2 -a $(getInode $1) = $(getInode $2) ] ||
+       [ -d $2 -a $(readlink $2)   = $1 ] ; then
+        rm -f $2
+        if [ -f $2.ORIG ] ; then
+            mv $2.ORIG $2
+        fi
+        echo $PGM: unlink $2 from $1 1>&2
+    fi
+}
+
+dotFiles() {
+    for i in ./dot.* ; do
+        NFILE=$(echo $i | sed 's/dot//')
+        case $1 in
+        install)
+            link $CWD/$i $HOME/$NFILE
+            ;;
+        uninstall)
+            delink $CWD/$i $HOME/$NFILE
+            ;;
+        esac
+    done
+
+    case $1 in
+    install)
+        git clone git://github.com/robbyrussell/oh-my-zsh.git $CWD/oh-my-zsh
+        link $CWD/oh-my-zsh $HOME/.oh-my-zsh
+        ;;
+    uninstall)
+        delink $CWD/oh-my-zsh $HOME/.oh-my-zsh
+        rm -rf $CWD/oh-my-zsh
+        ;;
+    esac
+}
+
+sysLinux() {
+    case $1 in 
+    install)
+        if [ ! -d $HOME/.local/share ] ; then
+            mkdir -p $HOME/.local/share
+        fi
+        link $CWD/openbox $HOME/.config/openbox
+        link $CWD/themes  $HOME/.local/share/themes
+        link $CWD/fonts   $HOME/.fonts
+        ;;
+    uninstall)
+        delink $CWD/openbox $HOME/.config/openbox
+        delink $CWD/themes  $HOME/.local/share/themes
+        delink $CWD/fonts   $HOME/.fonts
+        ;;
+    esac
     sudo fc-cache -f -v
-    ;;
-Darwin)
+}
+
+sysDarwin() {
     if [ X$(whoami) = Xroot ] ; then
         FONTSDIR=/Library/Fonts
     else
         FONTSDIR=$HOME/Library/Fonts
     fi
-    ln -f $CWD/fonts/*/*.ttf $FONTSDIR
-    ;;
-esac
+    for i in $CWD/fonts/*/*.ttf ; do
+        case $1 in 
+        install)
+            link $i $FONTSDIR
+            ;;
+        uninstall)
+            delink $i $FONTSDIR
+            ;;
+        esac
+    done
+}
 
-(
+binFiles() {
     cd $HOME
-    if [ ! -d ./bin ] ; then
-        mkdir bin
-    fi
-    ln -f -s $CWD/bin/* ./bin
-)
+    case $1 in
+    install)
+        if [ ! -d $HOME/bin ] ; then
+            mkdir -p $HOME/bin
+        fi
+        for i in $CWD/bin/* ; do
+            link $i $HOME/bin/$(basename $i)
+        done
+        ;;
+    uninstall)
+        for i in $CWD/bin/* ; do
+            delink $i $HOME/bin/$(basename $i)
+        done
+        ;;
+    esac
+    cd $CWD
+}
+
+cd $CWD
+dotFiles   $INSTALL
+sys$SYS    $INSTALL
+binFiles   $INSTALL
+
 
 exit
