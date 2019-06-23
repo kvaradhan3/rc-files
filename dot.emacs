@@ -5,7 +5,7 @@
 ;; You may delete these explanatory comments.
 (package-initialize)
 
-(defconst emacs-rc-dir "~/.rc/emacs")
+(load "~/.emacs-rc-dir")
 (setq rc-files-processed nil)
 (dolist (curFile (directory-files (expand-file-name emacs-rc-dir)
                                   t "^[0-9][0-9].*.el$"))

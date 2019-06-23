@@ -1,12 +1,9 @@
-#
-export ZDOTDIR=${ZDOTDIR:-~}
-export ZDOTDIR_LOCAL=${ZDOTDIR_LOCAL:-$HOME/.rc/zshell}
+test -t 0 || return
+
+export ZDOTDIR=${ZDOTDIR:-$HOME}
 typeset -F SECONDS
 
-if [ ! -t 0 ] ; then
-    return
-fi
-
+. $HOME/.zinit
 for i in $ZDOTDIR_LOCAL/*_zshenv_* ; do
     if [ -f $i ] ; then
         START=$SECONDS

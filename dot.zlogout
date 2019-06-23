@@ -1,9 +1,6 @@
-export ZDOTDIR_LOCAL=${ZDOTDIR_LOCAL:-$HOME/.rc/zshell}
+test -t 0 || return
 
-if [ ! -t 0 ] ; then
-    return
-fi
-
+. $HOME/.zinit
 for i in $ZDOTDIR_LOCAL/*_zlogout_* ; do
     if [ -f $i ] ; then
         START=$SECONDS
