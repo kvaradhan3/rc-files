@@ -29,6 +29,7 @@
   (if (not font-name)
       (setq font-name 'default))
   (win:set-font (cdr (assoc font-name win:fonts))))
+(setq my-font nil)
 
 (if (functionp 'transient-mark-mode)
     (progn
