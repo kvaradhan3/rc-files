@@ -35,12 +35,13 @@ function bcharge {
 
     bars=10
 
+set -x
     maxCap=$(      _ioreg MaxCapacity           )
     curCap=$(      _ioreg CurrentCapacity       )
     extConn=$(     _ioreg ExternalConnected     )
     extCharging=$( _ioreg ExternalChargeCapable )
 
-    charge=$(echo "$bars * $curCap / $maxCap" | bc)
+    charge=$(echo "$bars * ${curCap:-0} / ${maxCap:-1}" | bc)
     if   [[ $charge -gt $( expr 6 \* $bars / 10 ) ]] ; then
         colour=$grn
     elif [[ $charge -ge $( expr 4 \* $bars / 10 ) ]] ; then
@@ -57,7 +58,7 @@ function bcharge {
 
     fmt=''
     i=0
-    while test $i -ne $charge  ; do
+    while test $i -ne "$charge"  ; do
         fmt=$fmt$( printf "\u25b8" )
         i=$(expr $i + 1)
     done
@@ -65,6 +66,7 @@ function bcharge {
         fmt=$fmt$( printf "\u25b9" )
         i=$(expr $i + 1)
     done
+set +x
 
     print "${colour}${ac}${fmt}${reset}"
 }
