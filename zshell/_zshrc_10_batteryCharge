@@ -35,7 +35,6 @@ function bcharge {
 
     bars=10
 
-set -x
     maxCap=$(      _ioreg MaxCapacity           )
     curCap=$(      _ioreg CurrentCapacity       )
     extConn=$(     _ioreg ExternalConnected     )
@@ -66,7 +65,6 @@ set -x
         fmt=$fmt$( printf "\u25b9" )
         i=$(expr $i + 1)
     done
-set +x
 
     print "${colour}${ac}${fmt}${reset}"
 }
