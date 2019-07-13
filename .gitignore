@@ -12,3 +12,4 @@ oh-my-zsh
 # .ssh files
 id_*
 known_hosts*
+.known_hosts*
