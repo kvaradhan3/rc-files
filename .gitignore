@@ -9,3 +9,6 @@ fonts.scale
 rc.xml
 .uuid
 oh-my-zsh
+# .ssh files
+id_*
+known_hosts*
