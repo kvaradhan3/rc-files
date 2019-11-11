@@ -29,8 +29,10 @@
 ;;; (add-to-list 'exec-path "/opt/local/sbin")
 
 (when (memq window-system '(mac ns))
-  (setq exec-path-from-shell-check-startup-files nil)
-  (exec-path-from-shell-initialize))
+  (condition-case err
+      (exec-path-from-shell-initialize)
+    (error
+       (signal (car err) '("Is exec-path-from-shell installed?")))))
 
 (setq debug-on-error t)
 
