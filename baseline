@@ -115,25 +115,6 @@ defaults write org.cups.PrintingPrefs UseLastPrinter             -bool False
 killall Finder
 killall Dock
 
-log cups-pdf --- fails, but...
-(
-    mkdir CUPS-PDF
-    cd CUPS-PDF
-    wget https://bitbucket.org/codepoet/cups-pdf-for-mac-os-x/downloads/CUPS-PDF%202.6.1%20Installer.pkg
-    tar xf 'CUPS-PDF 2.6.1 Installer.pkg'
-    tar xf cups-pdf.pkg/Payload
-    tar xf generic-color-ppd.pkg/Payload
-    sudo sh -c <<EOF
-set -x
-ln -s /var/spool/cups-pdf/ /Users/Shared/CUPS-PDF
-cp etc/cups/cups-pdf.conf /etc/cups/cups-pdf.conf
-cp usr/libexec/cups/backend/cups-pdf /usr/libexec/cups/backend/cups-pdf
-cp usr/share/cups/model/PostscriptColor.ppd /usr/local/share/cups/model/PostscriptColor.ppd
-killall -HUP cupsd
-EOF
-    cd ..
-    rm -rf CUPS-PDF
-)
 getFonts() {
     log install $2 from developer.apple.com
     DMG=$1
@@ -152,7 +133,25 @@ getFonts    SF-Mono.dmg	 	   "SF Mono Fonts.pkg"
 getFonts    NY-Font.dmg            "NY Fonts.pkg"
 
 # Add printers
-log cups-pdf printer '(direct2pdf)' done
+log cups-pdf --- fails, but...
+(
+    mkdir CUPS-PDF
+    cd CUPS-PDF
+    curl https://bitbucket.org/codepoet/cups-pdf-for-mac-os-x/downloads/CUPS-PDF%202.6.1%20Installer.pkg | tar xf - 
+    tar xf cups-pdf.pkg/Payload
+    tar xf generic-color-ppd.pkg/Payload
+    sudo sh -c <<EOF
+set -x
+ln -s /var/spool/cups-pdf/ /Users/Shared/CUPS-PDF
+cp etc/cups/cups-pdf.conf /etc/cups/cups-pdf.conf
+cp usr/libexec/cups/backend/cups-pdf /usr/libexec/cups/backend/cups-pdf
+cp usr/share/cups/model/PostscriptColor.ppd /usr/local/share/cups/model/PostscriptColor.ppd
+killall -HUP cupsd
+EOF
+    cd ..
+    rm -rf CUPS-PDF
+))
+log add cups-pdf printer, direct2pdf
 sudo sh -c <<LPSETUP_DONE
   lpadmin -E -p direct2pdf                                    \
           -v cups-pdf:/                                       \
@@ -216,3 +215,4 @@ open -a "Intel Power Gadget"
 open -a "Activity Monitor"
 open -a Sync
 
+exit
