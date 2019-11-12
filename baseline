@@ -19,6 +19,7 @@ brew      install nmap
 brew      install mas
 brew cask install netspot
 brew cask install geektool
+brew cask install postman
 
 # geeklets
 brew      install node
