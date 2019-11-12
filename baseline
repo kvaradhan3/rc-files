@@ -8,88 +8,14 @@ cd $HOME
 log install homebrew and basic tools
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-# tools
-brew      install zsh
-brew      install python3
-brew      install tmux
-brew      install autojump
-brew      install jq
-brew      install cscope
-brew      install nmap
-brew      install mas
-brew cask install netspot
-brew cask install geektool
-brew cask install postman
+# move brew to Brewfile, generated as 
+#
+# % brew bundle dump --force
+#
+brew bundle 
+brew bundle cleanup
 
-# geeklets
-brew      install node
-
-# fonts
-brew tap homebrew/cask-fonts
-brew cask install font-alegreya
-brew cask install font-alegreya-sans
-brew cask install font-fontawesome
-brew cask install font-inconsolata
-brew cask install font-source-code-pro
-brew cask install font-source-serif-pro
-brew cask install font-source-sans-pro
-brew cask install font-humor-sans		# xkcd
-brew cask install font-lato
-
-# a wee bit of fun
-brew install fortune
-brew install cowsay
-
-# GUI tools
-brew cask install 1password-cli
-brew cask install 1password
-brew cask install Caffeine
-brew cask install Go2Shell	 
-brew cask install avibrazil-rdm
-brew cask install QuickSilver
-brew cask install iTerm2
-brew cask install Emacs
-brew cask install Fantastical
-brew cask install OmniGraffle
-brew cask install GeekTool
-brew cask install intel-power-gadget
-brew cask install Sync
-brew cask install DropBox
-
-# browsers
-brew      install wget
-brew      install lynx
-brew cask install Firefox
-brew cask install brave-browser
-
-# social 
-brew cask install WhatsApp
-brew cask install Yammer
-brew cask install slack
-brew cask install VLC
-
-# Cloudy
-brew      install kubernetes-cli
-brew      install awscli
-brew      install docker
-brew      install docker-compose
-brew      install docker-machine
-brew      install xhyve
-brew      install docker-machine-driver-xhyve
-brew cask install VirtualBox
-brew cask install VirtualBox-extension-pack
-
-brew cleanup --force
 rm -f -r /Library/Caches/Homebrew/*
-
-# things from MAS
-masInstall() {
-    mas install $(mas search $1 | head -1 | awk '{print $1}')
-}
-# masInstall wunderlist
-# masInstall Xcode
-mas lucky wunderlist
-mas lucky Xcode
 
 # this work is partial
 log os defaults
@@ -116,7 +42,7 @@ killall Finder
 killall Dock
 
 getFonts() {
-    log install $2 from developer.apple.com
+    log install font: $(basename $2 .pkg) from developer.apple.com
     DMG=$1
     PKG=$2
 
@@ -151,6 +77,7 @@ EOF
     cd ..
     rm -rf CUPS-PDF
 ))
+
 log add cups-pdf printer, direct2pdf
 sudo sh -c <<LPSETUP_DONE
   lpadmin -E -p direct2pdf                                    \
@@ -211,8 +138,6 @@ log initialize some basic apps
 open -a Caffeine
 open -a Go2Shell
 open -a GeekTool
-open -a "Intel Power Gadget"
-open -a "Activity Monitor"
 open -a Sync
 
 exit
