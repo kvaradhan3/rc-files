@@ -21,3 +21,6 @@ alias qlp='/usr/bin/qlmanage -p'
 
 alias p=pushd
 alias pop=popd
+
+alias rc='readlink current'
+alias mkrc='$(ln -sf "$(pf -d .values)" current)'
