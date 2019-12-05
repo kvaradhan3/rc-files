@@ -51,7 +51,10 @@ cask "font-source-sans-pro"
 cask "font-source-serif-pro"
 cask "geektool"
 cask "go2shell"
+cask "handbrake"
+cask "harmony"
 cask "intel-power-gadget"
+cask "isyncr"
 cask "iterm2"
 cask "mactex"
 cask "netspot"
@@ -68,6 +71,7 @@ cask "visual-studio-code"
 cask "vlc"
 cask "whatsapp"
 cask "yammer"
+mas "Airmail 3", id: 918858936
 mas "TweetDeck", id: 485812721
 mas "Wunderlist", id: 410628904
 mas "Xcode", id: 497799835
