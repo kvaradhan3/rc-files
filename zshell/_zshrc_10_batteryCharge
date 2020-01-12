@@ -7,13 +7,18 @@ function _ioreg {
         PWR=/sys/class/power_supply
         case $1 in
         MaxCapacity)
-            cat $PWR/BAT0/charge_full_design
+            cat $PWR/BAT0/charge_full_design 2>&-
             ;;
         CurrentCapacity)
-            cat $PWR/BAT0/charge_now
+            cat $PWR/BAT0/charge_now 2>&-
             ;;
         ExternalConnected|ExternalChargeCapable)
-            if [ $(cat $PWR/AC/online) -eq 0 ] ; then
+            if [ -f $PWR/AC/online ] ; then
+                ONL=$PWR/AC/online
+            else
+                ONL=$(echo $PWR/*/online | cut -d' ' -f1)
+            fi
+            if [ $(cat "${ONL:-/dev/null}") -eq 0 ] ; then
                 print No
             else
                 print Yes
