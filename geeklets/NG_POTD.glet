@@ -11,7 +11,7 @@ DATE=$(date +%F)
 
 mkdir -p $HOME/Pictures/potd
 cd $HOME/Pictures/potd
-rm -f *
+# rm -f *
 
 eval curl $(curl $URL | grep showTitles | jq .endpoint) -o $DATE.json
 
@@ -19,12 +19,11 @@ URI=$(eval echo $(jq .items\[0].image.renditions\[-1].uri $DATE.json))
 FN=$(basename $URI)
 
 eval curl $URI -o $FN
+mv $DATE.json $(basename $FN .jpg).json
 
 osascript -e "tell application \"Finder\" to set desktop picture to POSIX file \"$HOME/Pictures/potd/$FN\""
 killall Dock
 </string>
-	<key>DisplayID</key>
-	<integer>69733382</integer>
 	<key>DropShadow</key>
 	<false/>
 	<key>FailureImage</key>
@@ -81,7 +80,7 @@ killall Dock
 	<key>Name</key>
 	<string>NG POTD</string>
 	<key>RefreshInterval</key>
-	<integer>7200</integer>
+	<integer>20000</integer>
 	<key>SetLocale</key>
 	<true/>
 	<key>SuccessImage</key>

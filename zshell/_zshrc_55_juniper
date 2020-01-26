@@ -87,5 +87,9 @@ j-my-address_pool() {
     _check_hosts $ARGS `echo $J_MYADDRS`
 }
 
-pknc() {
-}
+addpath /usr/local/Users/kvaradhan		\
+	/usr/local/Users/kvaradhan/Sync		\
+	/usr/local/Users/kvaradhan/src		\
+
+set_cdpath /usr/local/Users/kvaradhan                        \
+           /usr/local/Users/kvaradhan/Sync

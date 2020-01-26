@@ -42,7 +42,7 @@
 ;;;
 (add-hook 'c-mode-common-hook
 	  '(lambda ()
-	     (setq cscope:mode 'cscope)))
+	     (setq cscope:mode 'xcscope)))
 
 (add-hook 'c-mode-hook
 	  '(lambda ()
@@ -56,6 +56,9 @@
 		     cscope-bindings-3deep nil) ; cc mode uses \C-c\C-s,
 						; but not as a prefix.
 	       (cscope-bind-keys))
+	     (when (equal cscope:mode 'xcscope)
+               (cscope-setup)
+	       (setq cscope-option-use-inverted-index t))
 	  ))
 
 ;;;
