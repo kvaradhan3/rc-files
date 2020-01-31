@@ -35,7 +35,6 @@ cask "android-file-transfer"
 cask "android-platform-tools"
 cask "avibrazil-rdm"
 cask "brave-browser"
-cask "caffeine"
 cask "dropbox"
 cask "emacs"
 cask "fantastical"
@@ -57,6 +56,7 @@ cask "intel-power-gadget"
 cask "isyncr"
 cask "iterm2"
 cask "mactex"
+cask "moneydance"
 cask "netspot"
 cask "omnidisksweeper"
 cask "omnigraffle"
@@ -71,6 +71,7 @@ cask "visual-studio-code"
 cask "vlc"
 cask "whatsapp"
 cask "yammer"
+mas "Amphetamine", id: 937984704
 mas "Airmail 3", id: 918858936
 mas "TweetDeck", id: 485812721
 mas "Wunderlist", id: 410628904
