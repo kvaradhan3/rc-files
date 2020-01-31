@@ -67,7 +67,7 @@ dotFiles() {
 
     case $1 in
     install)
-        git clone git://github.com/robbyrussell/oh-my-zsh.git $CWD/oh-my-zsh
+        git clone https://github.com/ohmyzsh/ohmyzsh.git $CWD/oh-my-zsh
         link $CWD/oh-my-zsh $HOME/.oh-my-zsh
         if [ -d oh-my-zsh-custom/plugins ] ; then
             for i in oh-my-zsh-custom/plugins/* ; do
