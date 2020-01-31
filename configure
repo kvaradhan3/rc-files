@@ -81,7 +81,7 @@ dotFiles() {
         fi
 
         echo "(defconst emacs-rc-dir \"$CWD/emacs\")"              > $HOME/.emacs-rc-dir.el
-        echo "export ZDOTDIR_LOCAL=\${ZDOTDIR_LOCAL:-$CWD/zshell}" > $HOME/.zinit
+        echo "export ZDOTDIR_LOCAL=\${ZDOTDIR_LOCAL:-$CWD/zshell}; setopt NO_NOMATCH" > $HOME/.zinit
         ;;
     uninstall)
         delink $CWD/oh-my-zsh $HOME/.oh-my-zsh
