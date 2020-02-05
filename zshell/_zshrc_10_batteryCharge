@@ -7,16 +7,24 @@ function _ioreg {
         PWR=/sys/class/power_supply
         case $1 in
         MaxCapacity)
-            cat $PWR/BAT0/charge_full_design
+            if [ -f $PWR/BAT0/charge_full_design ] ; then
+                cat $PWR/BAT0/charge_full_design
+            else
+                echo 1
+            fi
             ;;
         CurrentCapacity)
-            cat $PWR/BAT0/charge_now
+            if [ -f $PWR/BAT0/charge_full_design ] ; then
+                cat $PWR/BAT0/charge_now
+            else
+                echo 0
+            fi
             ;;
         ExternalConnected|ExternalChargeCapable)
-            if [ $(cat $PWR/AC/online) -eq 0 ] ; then
-                print No
-            else
+            if [ -f $PWR/AC/online -a "x$(cat $PWR/AC/online 2>&-)" != 'x0' ] ; then
                 print Yes
+            else
+                print No
             fi
             ;;
         esac
@@ -70,4 +78,4 @@ function bcharge {
 }
  
 setopt promptsubst
-export RPROMPT='$(bcharge) %*'
+export RPROMPT='$(bcharge)%*'
