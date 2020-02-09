@@ -1,0 +1,7 @@
+[user]
+	name = Kannan Varadhan
+	email = kannan@ieee.org
+[push]
+	default = simple
+[alias]
+	lo = log --oneline --decorate --graph

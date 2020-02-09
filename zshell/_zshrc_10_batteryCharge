@@ -21,10 +21,10 @@ function _ioreg {
             fi
             ;;
         ExternalConnected|ExternalChargeCapable)
-            if [ "x$(cat $PWR/AC/online 2>&-)" = 'x0' ] ; then
-                print No
-            else
+            if [ -f $PWR/AC/online -a "x$(cat $PWR/AC/online 2>&-)" != 'x0' ] ; then
                 print Yes
+            else
+                print No
             fi
             ;;
         esac
@@ -78,4 +78,4 @@ function bcharge {
 }
  
 setopt promptsubst
-export RPROMPT='$(bcharge) %*'
+export RPROMPT='$(bcharge)%*'
