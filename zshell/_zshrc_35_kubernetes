@@ -1,3 +1,5 @@
 alias ksinit='source ~/.oh-my-zsh/plugins/kubectl/kubectl.plugin.zsh'
 alias ks='kubectl -n kube-system'
 alias kl='kubectl -n kube-system logs -f'
+alias k='kubectl'
+alias ka='kubeadm'
