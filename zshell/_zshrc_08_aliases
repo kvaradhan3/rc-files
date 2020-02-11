@@ -26,4 +26,4 @@ alias rc='readlink current'
 alias mkrc='$(ln -sf "$(pf -d .values)" current)'
 
 alias tl='tmux list-sessions'
-alias ta='tmux -t'
+alias ta='tmux attach -t'
