@@ -1,8 +1,8 @@
 # derived from Robby Russell's and minimal theme
 #
-ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}[%{$fg[red]%}"
-ZSH_THEME_GIT_PROMPT_SUFFIX="%{$fg_bold[blue]%}]%{$reset_color%}"
-ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[yellow]%}✗%{$reset_color%}"
+ZSH_THEME_GIT_PROMPT_PREFIX='%F{blue}%B[%b%F{red}'
+ZSH_THEME_GIT_PROMPT_SUFFIX='%F{blue}%B]%b%f'
+ZSH_THEME_GIT_PROMPT_DIRTY='%F{yellow}✗%f'
 ZSH_THEME_GIT_PROMPT_CLEAN=""
 # ✗
 # ●
@@ -27,6 +27,13 @@ vcs_status() {
     fi
 }
 
-PROMPT="%(#+%{$bg[yellow]%}%(?:%{$fg_bold[blue]%}%m➜:%{$fg_bold[red]%}%m➜)+%(?:%{$fg_bold[green]%}%m➜:%{$fg_bold[red]%}%m➜))%{$reset_color%} "
-PROMPT+='%{$fg[cyan]%}%c%{$reset_color%}$(vcs_status) '
+if [ "x$SSH_CLIENT" != 'x' ] ; then
+    _Host='(%m) '
+else
+    _Host=''
+fi
+_CWkDir='%F{cyan}%1~%f '
+_Status='%B%(?+%F{blue}+%F{red})➜%f%b '
+_Prompt="${_Host}${_CWkDir}"'$(vcs_status)'"${_Status}"
+PROMPT='%(!.%K{194}'"$_Prompt"'%k.'"$_Prompt"')'
 RPROMPT='%*'
