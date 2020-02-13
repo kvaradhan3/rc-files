@@ -78,4 +78,4 @@ function bcharge {
 }
  
 setopt promptsubst
-export RPROMPT='$(bcharge)%*'
+export RPROMPT='$(bcharge) '"$RPROMPT"
