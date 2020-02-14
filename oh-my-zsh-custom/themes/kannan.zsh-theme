@@ -27,13 +27,15 @@ vcs_status() {
     fi
 }
 
-if [ "x$SSH_CLIENT" != 'x' ] ; then
-    _Host='(%m) '
-else
-    _Host=''
-fi
-_CWkDir='%F{cyan}%1~%f '
-_Status='%B%(?+%F{blue}+%F{red})➜%f%b '
-_Prompt="${_Host}${_CWkDir}"'$(vcs_status)'"${_Status}"
-PROMPT='%(!.%K{194}'"$_Prompt"'%k.'"$_Prompt"')'
+prompt() {
+    _Status='%B%(?+%F{green}+%F{red})➜%f%b'
+    _CWkDir='%F{cyan}%1~%f '
+    test "x$SSH_CLIENT" != 'x' && _Hostnm='(%F{cyan}%m%f%) ' || _Hostnm=
+    _Prompt="${_Host} ${_CWkDir}"'$(vcs_status)'"${_Status}"
+    _v=$(vcs_status)
+    _p="${_Hostnm}${_CWkDir}${_v}${_Status}"
+    echo "%(!.%K{191}${_p}%k.${_p})"
+}
+
+PROMPT='$(prompt) '
 RPROMPT='%*'
