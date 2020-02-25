@@ -1,3 +1,14 @@
+function deviceHasBattery {
+    case $(uname -s) in
+    Darwin)
+        return $(ioreg -i | grep "AppleSmartBattery " >/dev/null)
+        ;;
+    Linux)
+        return $(test -d /sys/class/power_supply/BAT0)
+        ;;
+    esac
+}
+
 function _ioreg {
     case $(uname -s) in
     Darwin)
@@ -77,5 +88,7 @@ function bcharge {
     print "${colour}${ac}${fmt}${reset}"
 }
  
-setopt promptsubst
-export RPROMPT='$(bcharge) '"$RPROMPT"
+if deviceHasBattery ; then
+    setopt promptsubst
+    export RPROMPT='$(bcharge) '"$RPROMPT"
+fi
