@@ -52,6 +52,16 @@ function bcharge {
     yel="%{\033[33m%}"
     reset="%{\033[00m%}"
 
+    acChar_='\u26A1'
+    pwrArrF='\u25b8'
+    pwrArrE='\u25b9'
+    pwrBlkF='\u25Ae'
+    pwrBlkE='\u25AF'
+    pwrBlkF='\u25A0'
+    pwrBlkE='\u25A1'
+    pwrSymF=$pwrBlkF
+    pwrSymE=$pwrBlkE
+
     bars=10
 
     maxCap=$(      _ioreg MaxCapacity           )
@@ -69,7 +79,7 @@ function bcharge {
     fi
 
     if [[ $extConn = 'Yes' && $extCharging = 'Yes' ]] ; then
-        ac="$(printf '\u26A1') "
+        ac="$(printf $acChar_) "
     else
         ac=''
     fi
@@ -77,11 +87,11 @@ function bcharge {
     fmt=''
     i=0
     while test $i -ne "$charge"  ; do
-        fmt=$fmt$( printf "\u25b8" )
+        fmt=$fmt$( printf $pwrSymF )
         i=$(expr $i + 1)
     done
     while test $i -ne $bars ; do
-        fmt=$fmt$( printf "\u25b9" )
+        fmt=$fmt$( printf $pwrSymE )
         i=$(expr $i + 1)
     done
 
