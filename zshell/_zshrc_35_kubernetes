@@ -4,3 +4,4 @@ alias kl='kubectl -n kube-system logs -f'
 alias k='kubectl'
 alias ka='kubeadm'
 alias -g .an='--all-namespaces'
+alias -g del=delete
