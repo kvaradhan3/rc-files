@@ -47,10 +47,14 @@ function _ioreg {
 }
 
 function bcharge {
-    red="%{\033[31m%}"
-    grn="%{\033[32m%}"
-    yel="%{\033[33m%}"
-    reset="%{\033[00m%}"
+#    red="%{\033[31m%}"
+#    grn="%{\033[32m%}"
+#    yel="%{\033[33m%}"
+#    reset="%{\033[00m%}"
+    red='%F{red}'
+    grn='%F{green}'
+    yel='%F{yellow}'
+    reset='%f'
 
     acChar_='\u26A1'
     pwrArrF='\u25b8'
