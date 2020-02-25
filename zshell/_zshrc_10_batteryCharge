@@ -68,6 +68,33 @@ function bcharge {
 
     bars=10
 
+    while getopts ia:f:e:b: o
+    do  case "$o" in
+        i)
+            red="\033[31m"
+            grn="\033[32m"
+            yel="\033[33m"
+            reset="\033[00m"
+            ;;
+        a)  : ac symbol
+            acChar_="$OPTARG"
+            ;;
+        e)  : power Symbol EMPTY
+            pwrSymE="$OPTARG"
+            ;;
+        f)  : power Symbol FULL
+            pwrSymF="$OPTARG"
+            ;;
+        b)  : #bars
+            bars="$OPTARG"
+            ;;
+        *)
+            echo "bcharge [-i] [-e SYM] [-f SYM] [-a SYM] [-b #]" >&2
+            return
+            ;;
+        esac
+    done
+
     maxCap=$(      _ioreg MaxCapacity           )
     curCap=$(      _ioreg CurrentCapacity       )
     extConn=$(     _ioreg ExternalConnected     )
