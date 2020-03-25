@@ -28,7 +28,7 @@
     (menlo   . (get-font-name "*" "menlo"))
     (menlo2  . (get-font-name "apple" "Menlo"))
     (monaco  . (get-font-name "apple" "Monaco"))
-    (sfmono  . (get-font-name "apple" "SF Mono" 14))
+    (sfmono  . (get-font-name "apple" "SF Mono" 18))
     ))
 
 (defun win:set-my-font (&optional font-name)
@@ -69,7 +69,7 @@
 			  (expand-file-name "~/bin"))))
       (setenv "PATH"
 	      (mapconcat (function (lambda (x) x)) exec-path path-separator))
-      (setq my-font 'inconsolata)
+      (setq my-font 'sfmono)
       ))
 
 (if my-font
