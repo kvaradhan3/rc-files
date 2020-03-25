@@ -1,0 +1,30 @@
+#! /usr/bin/env sh
+
+export PATH=/usr/local/bin:$PATH
+URL=https://www.nationalgeographic.com/photography/photo-of-the-day/
+DATE=$(date +%F)
+
+mkdir -p $HOME/Pictures/potd
+cd $HOME/Pictures/potd
+# rm -f *
+
+eval curl $(curl $URL | grep showTitles | jq .endpoint) -o $DATE.json
+
+# typical URI from ngpotd:
+# "${URL}/2020/03/pod-23-03-2020-936364.jpg"
+#
+URI=$(eval echo $(jq .items\[0].image.uri $DATE.json))
+FN=$(basename $URI | sed 's/pod-\(..\)-\(..\)-\(.*\)-\(.*\)/pod-\3-\2-\1-\4/')
+
+eval curl $URI -o $FN
+mv $DATE.json $(basename $FN .jpg).json
+
+case $(uname -s) in
+Darwin)
+    osascript -e "tell application \"Finder\" to set desktop picture to POSIX file \"$HOME/Pictures/potd/$FN\""
+    killall Dock
+    ;;
+Linux)
+    gsettings set org.gnome.desktop.background picture-uri "file:///$HOME/Pictures/potd/$FN"
+    ;;
+esac
