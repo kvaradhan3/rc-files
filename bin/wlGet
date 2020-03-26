@@ -1,0 +1,62 @@
+#! /usr/bin/env python3
+
+import os
+import requests
+import json
+import sys
+from pprint import pprint as pp
+
+# set the callback url
+# and get the client_id and client_secret at
+# https://developer.wunderlist.com/applications
+#
+# doc for WL API
+# https://developer.wunderlist.com/documentation
+
+wunderlistUrl = "https://a.wunderlist.com/api/v1"
+auth_headers  = {}
+
+def authInit():
+    global auth_headers
+    if auth_headers:
+        return
+
+    HOME = os.environ['HOME']
+    with open(f"{HOME}/.wunderlist.json") as auth_inp:
+        auth = json.load(auth_inp)
+    auth_headers = {
+        'X-Access-Token' : auth['access_token'],
+        'X-Client-Id': auth['client_id']
+    }
+
+def get(args = None, **opts):
+    if args is None:
+        args='lists'
+
+    url = f'{wunderlistUrl}/{args}'
+    s = []
+    if opts:
+        for k, v in zip(opts.keys(), opts.values()):
+            s.append(f"{k}={v}")
+        url += '?' + '&'.join(s)
+
+    r = requests.get(url, headers=auth_headers)
+    return r.json()
+
+
+def main():
+    authInit()
+    if len(sys.argv) == 1:
+        tags = 'lists'
+        args = {}
+    else:
+        tags = sys.argv[1]
+        args = {}
+        for a in sys.argv[2:]:
+            k, v = a.split('=')
+            args[k] = v
+    pp(get(tags, **args))
+        
+    
+if __name__ == "__main__":
+    main()
