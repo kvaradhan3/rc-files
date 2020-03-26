@@ -1,4 +1,8 @@
-_condaDir=/usr/local/anaconda3
+if [ -d $HOME/.conda ] ; then
+    _condaDir=$(cat $HOME/.conda/environments.txt)
+else
+    _condaDir=/usr/local/anaconda3
+fi
 
 if [ ! -d $_condaDir ] ; then
     return 0
@@ -20,3 +24,31 @@ unset __conda_setup
 # <<< conda initialize <<<
 
 conda deactivate
+
+con() {
+    case "$1" in
+    'create')
+        shift;
+        case $# in
+        3)  conda create "$@" ;;
+        1)  conda create -n $(basename $(pwd)) "$@" ;;
+        0)  conda create -n $(basename $(pwd)) python ;;
+        *)  echo "conda: unknown arguments" >&2 ; return 1 ;;
+        esac
+        ;;
+    'activate')
+        shift;
+        case $1 in
+        '')     conda activate ;;
+        '.')    conda activate $(basename $(pwd)) ;;
+        *)      conda activate "$@" ;;
+        esac
+        ;;
+    '')
+	conda activate $(basename $(pwd))
+	;;
+    *)
+        conda "$@"
+        ;;
+    esac
+}
