@@ -30,7 +30,10 @@
 
 (when (memq window-system '(mac ns))
   (condition-case err
-      (exec-path-from-shell-initialize)
+      (progn
+        (let ((exec-path-from-shell-check-startup-files nil))
+          (exec-path-from-shell-initialize))
+        )
     (error
        (signal (car err) '("Is exec-path-from-shell installed?")))))
 
