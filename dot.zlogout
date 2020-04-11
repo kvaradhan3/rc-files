@@ -1,5 +1,3 @@
-test -t 0 || return
-
 . $HOME/.zinit
 for i in $ZDOTDIR_LOCAL/*_zlogout_* ; do
     if [ -f $i ] ; then
