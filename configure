@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/sh 
 
 usage() {
    echo "Usage: $(basename $0) [-u]" 1>&2 ;
@@ -24,8 +24,8 @@ SYS=$(uname)
 
 getInode() {
     case $SYS in
-    Linux)  stat -c %i "$1" ;;
-    Darwin) stat -f %i "$1" ;;
+    Linux)  eval stat -c %i "$1" 2>/dev/null ;;
+    Darwin) eval stat -f %i "$1" 2>/dev/null ;;
     esac
 }
 
@@ -42,8 +42,8 @@ link() {
 }
 
 delink() {
-    if [ -f "$2" -a $(getInode "$1") = $(getInode "$2") ] ||
-       [ -d "$2" -a $(readlink "$2")   = "$1" ] ; then
+    if [ -f "$2" -a "$(getInode \"$2\")" = "$(getInode \"$1\")"  ] ||
+       [ -d "$2" -a "$(eval readlink \"$2\")" = "$1" ] ; then
         rm -f $2
         if [ -f $2.ORIG ] ; then
             mv $2.ORIG $2
