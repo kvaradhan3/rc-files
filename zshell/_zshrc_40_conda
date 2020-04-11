@@ -25,16 +25,27 @@ unset __conda_setup
 
 conda deactivate
 
+
 con() {
     case "$1" in
     'create')
         shift;
-        case $# in
-        3)  conda create "$@" ;;
-        1)  conda create -n $(basename $(pwd)) "$@" ;;
-        0)  conda create -n $(basename $(pwd)) python ;;
-        *)  echo "conda: unknown arguments" >&2 ; return 1 ;;
-        esac
+        _modules=
+        _envname=$(basename $(pwd))
+        _envNext=false
+        for i in "$@" ; do
+            case $i in
+            '-n')   _envNext=true ;;
+            *)      if $_envNext ; then
+                        _envname="$i"
+                        _envNext=false
+                    else
+                        _modules="$_modules \"$i\""
+                    fi
+                    ;;
+            esac
+        done
+        eval conda create -n $_envname $_modules
         ;;
     'activate')
         shift;
