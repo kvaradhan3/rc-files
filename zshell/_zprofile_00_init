@@ -1,12 +1,12 @@
 typeset -F SECONDS
 
-if [ -t 0 ] ; then
-    prtiming() {
-        e=$3
-        e=${e:-$SECONDS}
+prtiming() {
+    e=$3
+    e=${e:-$SECONDS}
+    if [ -t 0 ] ; then
         print -f ": %25s\t%8.6f -- %8.6f\t%8.6f\n" $1 $2 $e $(( $e - $2))
-    }
-fi
+    fi
+}
 
 #
 fpath=(
