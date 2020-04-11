@@ -1,3 +1,7 @@
+if [ ! -d /usr/local/Users/kvaradhan ] ; then
+   return 0
+fi
+
 # my resources
 #
 J_MYHOSTS="a5s1 a5s11 a5s32"
@@ -87,9 +91,9 @@ j-my-address_pool() {
     _check_hosts $ARGS `echo $J_MYADDRS`
 }
 
-addpath /usr/local/Users/kvaradhan		\
-	/usr/local/Users/kvaradhan/Sync		\
-	/usr/local/Users/kvaradhan/src		\
+_path /usr/local/Users/kvaradhan		\
+      /usr/local/Users/kvaradhan/Sync		\
+      /usr/local/Users/kvaradhan/src		\
 
-set_cdpath /usr/local/Users/kvaradhan                        \
-           /usr/local/Users/kvaradhan/Sync
+_cdpath /usr/local/Users/kvaradhan              \
+        /usr/local/Users/kvaradhan/Sync

@@ -1,18 +1,58 @@
-set_cdpath . .. $HOME $HOME/Desktop $HOME/Documents          \
-           $HOME/Drives/Dropbox                              \
-           $HOME/Drives/GoogleDrive                          \
-           $HOME/Drives/"My Gdrive"                          \
-           $HOME/Drives/"OneDrive - Juniper Networks, Inc"   \
-           $HOME/Drives/Box                                  \
-           $HOME/Drives                                      \
-           / /Volumes
+#! /bin/sh
 
-export MANPATH=`man -w`
-typeset -T INFOPATH infopath :
-typeset -U PATH CDPATH MANPATH INFOPATH
-#
+for envar in cdpath infopath manpath path ; do
+    ENVAR=$(echo $envar | tr 'a-z' 'A-Z')
+    typeset -xT $ENVAR $envar :
+    typeset -U $ENVAR $envar
+done
 
-addpath    . ..
-addpath -p /usr/local $HOME
+_path() {
+    local _i
+    prefix=false
+    for _i in "$@" ; do
+        if [ "x$_i" = 'x-p' ] ; then
+            prefix=true
+            continue
+        fi
+        if $prefix ; then
+            path=(     $_i/bin $_i/sbin  $path     )
+            manpath=(  $_i/man          $manpath  )
+            infopath=( $_i/info         $infopath )
+        else
+            path=(     $path           $_i/bin $_i/sbin )
+            manpath=(  $manpath        $_i/man         )
+            infopath=( $infopath       $_i/info        )
+        fi
+        prefix=false
+    done
+}
+
+_cdpath() {
+    local _i
+    prefix=false
+    for _i in "$@" ; do
+        if [ "x$_i" = 'x-p' ] ; then
+            prefix=true
+            continue
+        fi
+        if $prefix ; then
+            cdpath=( $_i $cdpath )
+        else
+            cdpath=( $cdpath $_i )
+        fi
+        prefix=false
+    done
+}
+
+MANPATH=$(man -w)
+
+_path    . ..
+_path -p /usr/local
+_path -p $HOME
+
+_cdpath . .. $HOME
+_cdpath $HOME/Desktop $HOME/Documents
+_cdpath $HOME/Drives/* $HOME/Drives
+_cdpath / /Volumes
 
 umask 022

@@ -1,4 +1,8 @@
-addpath /usr/local/fungible
+if [ ! -d /usr/local/fungible ] ; then
+   return 0
+fi
+
+_path /usr/local/fungible
 export WORKSPACE=${WORKSPACE:-/usr/local/Fungible/src}
 
 function setws() {
