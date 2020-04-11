@@ -1,8 +1,13 @@
-prtiming() {
-    e=$3
-    e=${e:-$SECONDS}
-    print -f ": %25s\t%8.6f -- %8.6f\t%8.6f\n" $1 $2 $e $(( $e - $2))
-}
+typeset -F SECONDS
+
+if [ -t 0 ] ; then
+    prtiming() {
+        e=$3
+        e=${e:-$SECONDS}
+        print -f ": %25s\t%8.6f -- %8.6f\t%8.6f\n" $1 $2 $e $(( $e - $2))
+    }
+fi
+
 #
 fpath=(
         $ZDOTDIR
@@ -12,8 +17,3 @@ fpath=(
         /usr/local/share/zsh-completions
         $fpath
     )
-
-
-autoload set_cdpath && set_cdpath
-autoload addpath && addpath
-autoload vlc
