@@ -1,47 +1,17 @@
 #
 # MacOSX directives
 #
-Host *
-  AddKeysToAgent	yes
-  #UseKeyChain	        yes:
-  ForwardAgent          yes
-  ForwardX11            yes
-
 Host github.com
   HostName              github.com
   User                  git
   PreferredAuthentications publickey
   IdentityFile          $HOME/.ssh/id_ed25519_ext
-
-Host ubuntu-build*.englab.juniper.net
-  #StrictHostKeyChecking yes
-  UserKnownHostsFile    $HOME/.ssh/known_hosts
-  User                  kvaradhan
-
-Host *.englab.juniper.net
-  StrictHostKeyChecking no
-  UserKnownHostsFile    /dev/null
-  User                  root
-  LogLevel              QUIET
-
-#
-# Fungible
-#
-Host server32.fungible.local
-  User                  root
-  LogLevel              QUIET
-
-#
-# Home Systems.
-#
-Host 10.229.137.*
-  User                  kannan
-
-Host 192.168.1.*
-  User                  kannan
+  ForwardX11            no
 
 Host *
-  CanonicalDomains	englab.juniper.net juniper.net fungible.local
-  CanonicalizeHostname	always
-  Match canonical 
-    User                kvaradhan
+  User                  kannan
+  AddKeysToAgent	yes
+  #UseKeyChain	        yes:
+  ForwardAgent          yes
+  ForwardX11            yes
+
