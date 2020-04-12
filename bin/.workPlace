@@ -1,0 +1,39 @@
+#! /bin/sh
+
+ITEM="_WORK_"
+if [ $# -gt 0 ] ; then
+    ITEM="$@"
+    shift
+fi
+
+if op get account >/dev/null 2>/dev/null ; then
+    SESS=$OP_SESSION_my
+else
+    SESS=$(op signin --output=raw)
+fi
+
+UUID=$(op list items --session=$SESS |
+       jq '.[] | select(.overview.title | test("'"$ITEM"'")) | .uuid')
+
+if [ $(echo $UUID | wc -w) -ne 1 ] ; then
+    op list items --session=$SESS                           |
+    jq '.[] | select(.overview.title | test("'"$ITEM"'")) | .uuid' |
+    while read uuid ; do
+        item=$(op get item $(eval echo $uuid) --session=$SESS </dev/null 2>&1)
+        title=$(echo $item | jq '.overview.title')
+        user=$(echo $item  | jq '.details.fields[]                  |
+                                 select(.designation == "username") |
+                                 .value' 2>&- )
+        pass=$(echo $item  | jq '.details.fields[]                  |
+                                 select(.designation == "password") |
+                                 .value' 2>&- )
+        printf "%s\t%-.20s\t%s\t%s\n"  $(eval echo $uuid)      \
+                                       "$title"                \
+                                       "$(eval echo $user)"    \
+                                       "$(eval echo $pass)"
+    done
+else
+    op get item $(eval echo $UUID) --session=$SESS                        |
+    jq '.details.fields[] | select(.designation == "password") | .value'  |
+    sed 's/"//g' | pbcopy
+fi

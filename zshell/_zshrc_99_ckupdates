@@ -1,35 +1,41 @@
-if [ -t 0 ] ; then
-    SYSTYPE=$(uname -s | tr 'A-Z' 'a-z')
+if [ ! -t 0 ] ; then
+    return 0
+fi
 
-    case $SYSTYPE in
-    darwin) STATARGS='-Lf %m' ;;
-    linux)  STATARGS='-c %Y'  ;;
-    *)      STATARGS='-c %Y'  ;;
-    esac
-
-    
-    if [[ $(( $(stat $STATARGS $0) + 2 * 24 * 60 * 60 )) -gt $(date +%s) ]] ; then
-        : nothing
+syst=$(uname -s | tr 'A-Z' 'a-z')
+if [ "x$syst" = 'xlinux' ] ; then
+    if   egrep -i 'ubuntu|debian'      /etc/os-release >/dev/null 2>&1 ; then
+        syst=debian-linux
+    elif egrep -i 'centos|rhel|fedora' /etc/os-release >/dev/null 2>&1 ; then
+        syst=redhat-linux
     else
-        case $SYSTYPE in
-        darwin)
-            /usr/sbin/softwareupdate -l
-            ;;
-        linux)
-            if egrep -i 'ubuntu|debian' /etc/os-release >/dev/null 2>&1; then
-                /usr/lib/update-notifier/apt-check -p
-            elif egrep -i 'centos|rhel|fedora' /etc/os-release >/dev/null 2>&1; then
-                yum list upgradeable
-            else
-                . /etc/os-release
-                print "$(basename $0): unknown $(uname -s) type:$ID/$ID_LIKE, updates check not done\n" >&2
-            fi
-            ;;
-        *)
-            print "$(basename $0): unknown system $(uname -s), updates check not done\n" >&2
-            ;;
-        esac
-        print "\n---\n" >&2
-        touch -m $0
+        syst=unknown-linux
     fi
 fi
+
+case $syst in
+darwin)
+    if [[ $(( $(stat -Lf %m $0) + 2 * 24 * 60 * 60 )) -lt $(date +%s) ]] ; then
+        /usr/sbin/softwareupdate -l
+        brew update
+        brew outdated
+        brew cask outdated
+        touch -m $0
+    fi
+    ;;
+debian-linux)
+    if [[ $(( $(stat -c %Y  $0) + 2 * 24 * 60 * 60 )) -lt $(date +%s) ]] ; then
+        /usr/lib/update-notifier/apt-check -p
+        touch -m $0
+    fi
+    ;;
+centos-linux)
+    if [[ $(( $(stat -c %Y  $0) + 2 * 24 * 60 * 60 )) -lt $(date +%s) ]] ; then
+        yum list upgradable
+        touch -m $0
+    fi
+    ;;
+*)
+    print "$(basename $0): unknown system $syst, updates check not done\n" >&2
+    ;;
+esac

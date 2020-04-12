@@ -1,3 +1,14 @@
+function deviceHasBattery {
+    case $(uname -s) in
+    Darwin)
+        return $(ioreg -i | grep "AppleSmartBattery " >/dev/null)
+        ;;
+    Linux)
+        return $(test -d /sys/class/power_supply/BAT0)
+        ;;
+    esac
+}
+
 function _ioreg {
     case $(uname -s) in
     Darwin)
@@ -7,21 +18,24 @@ function _ioreg {
         PWR=/sys/class/power_supply
         case $1 in
         MaxCapacity)
-            cat $PWR/BAT0/charge_full_design 2>&-
+            if [ -f $PWR/BAT0/charge_full_design ] ; then
+                cat $PWR/BAT0/charge_full_design
+            else
+                echo 1
+            fi
             ;;
         CurrentCapacity)
-            cat $PWR/BAT0/charge_now 2>&-
+            if [ -f $PWR/BAT0/charge_full_design ] ; then
+                cat $PWR/BAT0/charge_now
+            else
+                echo 0
+            fi
             ;;
         ExternalConnected|ExternalChargeCapable)
-            if [ -f $PWR/AC/online ] ; then
-                ONL=$PWR/AC/online
-            else
-                ONL=$(echo $PWR/*/online | cut -d' ' -f1)
-            fi
-            if [ $(cat "${ONL:-/dev/null}") -eq 0 ] ; then
-                print No
-            else
+            if [ -f $PWR/AC/online -a "x$(cat $PWR/AC/online 2>&-)" != 'x0' ] ; then
                 print Yes
+            else
+                print No
             fi
             ;;
         esac
@@ -33,12 +47,53 @@ function _ioreg {
 }
 
 function bcharge {
-    red="%{\033[31m%}"
-    grn="%{\033[32m%}"
-    yel="%{\033[33m%}"
-    reset="%{\033[00m%}"
+#    red="%{\033[31m%}"
+#    grn="%{\033[32m%}"
+#    yel="%{\033[33m%}"
+#    reset="%{\033[00m%}"
+    red='%F{red}'
+    grn='%F{green}'
+    yel='%F{yellow}'
+    reset='%f'
+
+    acChar_='\u26A1'
+    pwrArrF='\u25b8'
+    pwrArrE='\u25b9'
+    pwrBlkF='\u25Ae'
+    pwrBlkE='\u25AF'
+    pwrBlkF='\u25A0'
+    pwrBlkE='\u25A1'
+    pwrSymF=$pwrBlkF
+    pwrSymE=$pwrBlkE
 
     bars=10
+
+    while getopts ia:f:e:b: o
+    do  case "$o" in
+        i)
+            red="\033[31m"
+            grn="\033[32m"
+            yel="\033[33m"
+            reset="\033[00m"
+            ;;
+        a)  : ac symbol
+            acChar_="$OPTARG"
+            ;;
+        e)  : power Symbol EMPTY
+            pwrSymE="$OPTARG"
+            ;;
+        f)  : power Symbol FULL
+            pwrSymF="$OPTARG"
+            ;;
+        b)  : #bars
+            bars="$OPTARG"
+            ;;
+        *)
+            echo "bcharge [-i] [-e SYM] [-f SYM] [-a SYM] [-b #]" >&2
+            return
+            ;;
+        esac
+    done
 
     maxCap=$(      _ioreg MaxCapacity           )
     curCap=$(      _ioreg CurrentCapacity       )
@@ -55,7 +110,7 @@ function bcharge {
     fi
 
     if [[ $extConn = 'Yes' && $extCharging = 'Yes' ]] ; then
-        ac="$(printf '\u26A1') "
+        ac="$(printf $acChar_) "
     else
         ac=''
     fi
@@ -63,16 +118,18 @@ function bcharge {
     fmt=''
     i=0
     while test $i -ne "$charge"  ; do
-        fmt=$fmt$( printf "\u25b8" )
+        fmt=$fmt$( printf $pwrSymF )
         i=$(expr $i + 1)
     done
     while test $i -ne $bars ; do
-        fmt=$fmt$( printf "\u25b9" )
+        fmt=$fmt$( printf $pwrSymE )
         i=$(expr $i + 1)
     done
 
     print "${colour}${ac}${fmt}${reset}"
 }
  
-setopt promptsubst
-export RPROMPT='$(bcharge) %*'
+if deviceHasBattery ; then
+    setopt promptsubst
+    export RPROMPT='$(bcharge) '"$RPROMPT"
+fi

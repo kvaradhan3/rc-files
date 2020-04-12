@@ -1,0 +1,106 @@
+#! /usr/bin/env python3
+
+import os
+import requests
+import json
+import re
+
+# set the callback url
+# and get the client_id and client_secret at
+# https://developer.wunderlist.com/applications
+#
+# doc for WL API
+# https://developer.wunderlist.com/documentation
+
+HOME = os.environ['HOME']
+with open(f"{HOME}/.wunderlist.json") as auth_inp:
+    auth = json.load(auth_inp)
+
+wunderlistUrl="https://a.wunderlist.com/api/v1"
+auth_headers = { 'X-Access-Token' : auth['access_token'], 'X-Client-Id': auth['client_id'] }
+
+def get(args = None, **opts):
+    if args is None:
+        args='lists'
+
+    url = f'{wunderlistUrl}/{args}'
+    s = []
+    if opts:
+        for k, v in zip(opts.keys(), opts.values()):
+            s.append(f"{k}={v}")
+    url += '?' + '&'.join(s)
+
+    r = requests.get(url, headers=auth_headers)
+    return r.json()
+
+def getTaskTitleStr(title):
+    hashtag = re.compile('#')
+    tags    = []
+    cleantitle = ''
+    for i in title.split(' '):
+        if hashtag.match(i):
+            i = i[1:]
+            tags.append(i)
+        cleantitle += ' ' + i
+    tagsStr = '\t\t:' + ':'.join(tags) + ';' if tags else ''
+    return cleantitle[1:] + tagsStr
+
+def getDeadline(task):
+    d = ''
+    if 'due_date' in task:
+        d = task['due_date']
+        d += f' +{task["recurrence_count"]}' if 'recurrence_count' in task else ''
+        d += f'{task["recurrence_type"][0]}' if 'recurrence_type'  in task else ''
+    return d
+
+def extractSubfields(tid, tag, subField, subFieldKey):
+    js  = get(subField, task_id=tid)
+    str = ''
+    if js:
+        for i in js:
+            str += offsetStr(i[subFieldKey], '     ') if i[subFieldKey] else ''
+    if str:
+        print(f'   {tag}:\n{str}') 
+    return js
+
+def offsetStr(s, ldr):
+    return ldr + f'\n{ldr}'.join(s.splitlines())
+
+def json2str(js, ldr):
+    return offsetStr(json.dumps(js, indent=2), ldr)
+
+def main():
+    for l in get('lists'):
+        print(f'* {l["title"]}')
+        print(json2str(l, '  '), "\n")
+
+        doQuit = False
+        for t in get('tasks', list_id=l['id']):
+            js = json2str(t, '   ')
+
+            print(f'** TODO {getTaskTitleStr(t["title"])}')
+            deadline = getDeadline(t)
+            if deadline:
+                print(f'   DEADLINE: <{deadline}>')
+
+            tid = t['id']
+            v = extractSubfields(tid, "COMMENTS", 'task_comments', 'text')
+            #print(f'\n\n*****\n{v}\nCOMMENTS:\n*****\n\n')
+            if v:
+                js += "\n" + json2str(v, '   ')
+
+            v = extractSubfields(tid, "NOTES",    'notes', 'content')
+            #print(f'\n\n*****\nNOTES:\n{v}\n*****\n\n')
+            if v:
+                js += "\n" + json2str(v, '   ')
+
+            print(js, "\n")
+
+            st = get('subtasks', task_id=tid)
+            if st:
+                for subtask in st:
+                    print(f'*** TODO {getTaskTitleStr(subtask["title"])}\n{json2str(subtask, "   ")}\n')
+
+
+if __name__ == "__main__":
+    main()

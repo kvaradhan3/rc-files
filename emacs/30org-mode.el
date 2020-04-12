@@ -5,17 +5,18 @@
 ;;; (require 'org-install)
 ;;
 ;; Standard key bindings
-(global-set-key "\C-cl" 'org-store-link)
-(global-set-key "\C-ca" 'org-agenda)
-(global-set-key "\C-cb" 'org-iswitchb)
+(global-set-key (kbd "C-c l") 'org-store-link)
+(global-set-key (kbd "C-c a") 'org-agenda)
+(global-set-key (kbd "C-c b") 'org-iswitchb)
+(global-set-key (kbd "C-c c") 'org-capture)
 
 (setq org-log-done t)
 
-(defconst my-org-agenda-files-dir "~/Documents/Agenda")
+(defconst my-org-agenda-files-dir "~/Drives/Sync/Agenda")
 (defvar   my-org-agenda-files     ())
 
 (defun load-my-agenda-files ()
-  "Load all agenda files identified in ~/Documents/Agenda"
+  "Load all agenda files identified in var: my-org-agenda-files-dir"
   (interactive)
   (let* ((my-agenda-dir (expand-file-name my-org-agenda-files-dir))
 	 (my-top-dir    (expand-file-name (concat my-agenda-dir "/.."))))
@@ -24,7 +25,7 @@
 	(if (string-match-p ".*\\.org$" file)
 	    (make-symbolic-link file (concat my-agenda-dir "/"
 					     (basename file)) t))))
-    (setq my-org-agenda-files (directory-files my-agenda-dir t)))
+    (setq my-org-agenda-files (directory-files my-agenda-dir t "^.*\\.org")))
   (setq org-agenda-files my-org-agenda-files))
 
 ;;; (load-my-agenda-files)

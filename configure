@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/sh 
 
 usage() {
    echo "Usage: $(basename $0) [-u]" 1>&2 ;
@@ -24,8 +24,8 @@ SYS=$(uname)
 
 getInode() {
     case $SYS in
-    Linux)  stat -c %i "$1" ;;
-    Darwin) stat -f %i "$1" ;;
+    Linux)  eval stat -c %i "$1" 2>/dev/null ;;
+    Darwin) eval stat -f %i "$1" 2>/dev/null ;;
     esac
 }
 
@@ -42,8 +42,8 @@ link() {
 }
 
 delink() {
-    if [ -f $2 -a $(getInode $1) = $(getInode $2) ] ||
-       [ -d $2 -a $(readlink $2)   = $1 ] ; then
+    if [ -f "$2" -a "$(getInode \"$2\")" = "$(getInode \"$1\")"  ] ||
+       [ -d "$2" -a "$(eval readlink \"$2\")" = "$1" ] ; then
         rm -f $2
         if [ -f $2.ORIG ] ; then
             mv $2.ORIG $2
@@ -54,6 +54,9 @@ delink() {
 
 dotFiles() {
     for i in ./dot.* ; do
+        if [ "x$i" = 'x./dot.*' ] ; then
+            break
+        fi
         NFILE=$(echo $i | sed 's/dot//')
         case $1 in
         install)
@@ -67,11 +70,31 @@ dotFiles() {
 
     case $1 in
     install)
-        git clone git://github.com/robbyrussell/oh-my-zsh.git $CWD/oh-my-zsh
+        git clone https://github.com/ohmyzsh/ohmyzsh.git $CWD/oh-my-zsh
         link $CWD/oh-my-zsh $HOME/.oh-my-zsh
+        if [ -d oh-my-zsh-custom/plugins ] ; then
+            for i in oh-my-zsh-custom/plugins/* ; do
+                if [ "x$i" = 'xoh-my-zsh-custom/plugins/*' ] ; then
+                    break
+                fi
+                link $CWD/$i $CWD/oh-my-zsh/custom/plugins/$(basename $i)
+            done
+        fi
+        if [ -d oh-my-zsh-custom/themes ] ; then
+            for i in oh-my-zsh-custom/themes/* ; do
+                if [ "x$i" = 'xoh-my-zsh-custom/themes/*' ] ; then
+                    break
+                fi
+                link $CWD/$i $CWD/oh-my-zsh/custom/themes/$(basename $i)
+            done
+        fi
 
         echo "(defconst emacs-rc-dir \"$CWD/emacs\")"              > $HOME/.emacs-rc-dir.el
-        echo "export ZDOTDIR_LOCAL=\${ZDOTDIR_LOCAL:-$CWD/zshell}" > $HOME/.zinit
+        echo "
+            export ZDOTDIR=${ZDOTDIR:-$HOME};
+            export ZDOTDIR_LOCAL=\${ZDOTDIR_LOCAL:-$CWD/zshell};
+            setopt NO_NOMATCH
+        " > $HOME/.zinit
         ;;
     uninstall)
         delink $CWD/oh-my-zsh $HOME/.oh-my-zsh
@@ -107,6 +130,9 @@ sysDarwin() {
         FONTSDIR=$HOME/Library/Fonts
     fi
     for i in $CWD/fonts/*/*.ttf ; do
+        if [ "x$i" = "x$CWD"/'fonts/*/*.ttf' ] ; then
+            break
+        fi
         case $1 in 
         install)
             link $i $FONTSDIR/$(basename $i)
@@ -126,11 +152,17 @@ binFiles() {
             mkdir -p $HOME/bin
         fi
         for i in $CWD/bin/* ; do
+            if [ "x$i" = "x$CWD"/'bin/*' ] ; then
+                break
+            fi
             link $i $HOME/bin/$(basename $i)
         done
         ;;
     uninstall)
         for i in $CWD/bin/* ; do
+            if [ "x$i" = "x$CWD"/'bin/*' ] ; then
+                break
+            fi
             delink $i $HOME/bin/$(basename $i)
         done
         ;;

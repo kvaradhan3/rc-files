@@ -24,3 +24,10 @@ alias pop=popd
 
 alias rc='readlink current'
 alias mkrc='$(ln -sf "$(pf -d .values)" current)'
+
+alias tl='tmux list-sessions'
+alias ta='tmux attach -t'
+
+alias mv='nocorrect mv '
+alias cp='nocorrect cp '
+alias ln='nocorrect ln '

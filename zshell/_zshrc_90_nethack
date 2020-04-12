@@ -1,14 +1,1 @@
-
-for _i in /usr/games/nethack        \
-         /opt/local/bin/nethack     \
-         /usr/local/bin/nethack     \
-         /usr/local/bin/nethack4    \
-         /usr/local/bin/nethacked   \
-         ; do
-
-    if [ -x $_i ] ; then
-        addpath $(dirname $_i)
-        export NETHACKOPTIONS=eight_bit_tty,hilite_pet,rest_on_space,showexp,time,!mail,pickup_types='$"/?!=',boulder=Ö
-        break
-    fi
-done
+export NETHACKOPTIONS=eight_bit_tty,hilite_pet,rest_on_space,showexp,time,!mail,pickup_types='$"/?!=',boulder=Ö
