@@ -1,6 +1,6 @@
 #! /bin/sh
 
-ITEM="^Juniper Networks SSO$"
+ITEM="_WORK_"
 args=`getopt "r" $*`
 if [ $? != 0 ] ; then
     echo Usage: $(basename $0) '[-r]' '<string>' >&2
