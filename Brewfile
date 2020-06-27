@@ -64,7 +64,6 @@ cask "go2shell"
 cask "handbrake"
 cask "harmony"
 cask "intel-power-gadget"
-cask "isyncr"
 cask "iterm2"
 cask "mactex"
 cask "miro-formerly-realtimeboard"
@@ -86,7 +85,6 @@ cask "vlc"
 cask "whatsapp"
 cask "yammer"
 cask "zoomus"
-mas "Airmail", id: 918858936
 mas "Amphetamine", id: 937984704
 mas "GarageBand", id: 682658836
 mas "iMovie", id: 408981434
@@ -94,5 +92,4 @@ mas "Keynote", id: 409183694
 mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
 mas "TweetDeck", id: 485812721
-mas "Wunderlist", id: 410628904
 mas "Xcode", id: 497799835
