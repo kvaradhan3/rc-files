@@ -18,6 +18,7 @@ ZSH_THEME="kannan"
 ENABLE_CORRECTION="true"
 COMPLETION_WAITING_DOTS="true"
 ZSH_DISABLE_COMPFIX="true"
+CORRECT_IGNORE_FILE='.*'
 
 # Uncomment the following line if you want to disable marking untracked files
 # under VCS as dirty. This makes repository status check for large repositories
@@ -38,7 +39,7 @@ HIST_STAMPS="yyyy-mm-dd"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git git-auto-fetch brew                        \
-         aws kubectl		                        \
+         aws kubectl gcloud	                        \
          chucknorris ruby  autojump tmux		\
          docker docker-compose docker-machine vagrant virtualenv)
 
