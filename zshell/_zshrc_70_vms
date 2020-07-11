@@ -45,3 +45,5 @@ vb() {
         ;;
     esac
 }
+
+alias v=vagrant
