@@ -7,10 +7,6 @@
       (delete-frame)))
 
 
-(define-key	global-map	(kbd "\C-c n")	'notes-index-todays-link)
-(define-key	global-map	(kbd "H-a")	'notes-mkall)
-(define-key	global-map	(kbd "C-c C--")	'org-underline-line)
-
 (define-key	ctl-x-map		[?m]	'mh-smail)
 (define-key	ctl-x-map		[?r ?m]	'mh-rmail)
 (define-key	ctl-x-map		[?\C-k]	'kill-buffer-maybe-kill-frame)
@@ -24,17 +20,6 @@
 (define-key	esc-map			[?\C-r]	'isearch-backward-regexp)
 (define-key	esc-map			[?\C-z]	'ist)
 
-(global-set-key	[?\H-\C-d]	'decrypt-region)
-(global-set-key	[?\H-\C-e]	'encrypt-region)
-(global-set-key	[?\H-d]		'decrypt-buffer)
-(global-set-key	[?\H-e]		'encrypt-buffer)
-
-(global-set-key [?\H-u]		'org-underline-line)
-(global-set-key [?\H-4]		'org-underline-line)
-
-(global-set-key (kbd "C-c l")	'org-store-link)
-(global-set-key (kbd "C-c a")	'org-agenda)
-(global-set-key (kbd "C-c b")   'org-iswitchb)
 (global-set-key (kbd "C-c r")	'remember)
 
 ;
