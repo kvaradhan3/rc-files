@@ -1,5 +1,4 @@
-(require 'epa-file)
-(epa-file-enable)
+(use-package epa-file)
 
 ;
 ;;; Local Variables:

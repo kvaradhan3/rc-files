@@ -1,11 +1,12 @@
 ;;
 
-(add-to-list 'auto-mode-alist '("\\.xml\\'" . nxml-mode))
-(defun my-xml-mode-hooks ()
-  (setq xml-child-indent		4)
-  (setq xml-attribute-indent		4)
-  (setq xml-slash-auto-complete-flag	t))
-(add-hook 'xml-mode-hook	'my-xml-mode-hooks)
+(use-package nxml-mode
+  :mode         "\\.xml\\'"
+  :init
+  (setq xml-child-indent		4
+        xml-attribute-indent		4
+        xml-slash-auto-complete-flag	t)
+  )
 
 ;
 ;;; Local Variables:
