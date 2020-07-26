@@ -3,7 +3,7 @@
 log() { echo $(date +%FT%T) "$(basename $0):" "$@" >&2 ; }
 
 # make sure you are home
-cd $HOME
+# cd $HOME
 
 log install homebrew and basic tools
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -53,49 +53,50 @@ getFonts() {
     rm -f $DMG
 }
 
-getFonts    SF-Font-Pro.dmg        "San Francisco Pro.pkg"
-getFonts    SF-Font-Compact.dmg    "San Francisco Compact.pkg"
-getFonts    SF-Mono.dmg	 	   "SF Mono Fonts.pkg"
-getFonts    NY-Font.dmg            "NY Fonts.pkg"
+#getFonts    SF-Font-Pro.dmg        "San Francisco Pro.pkg"
+#getFonts    SF-Font-Compact.dmg    "San Francisco Compact.pkg"
+#getFonts    SF-Mono.dmg	 	   "SF Mono Fonts.pkg"
+#getFonts    NY-Font.dmg            "NY Fonts.pkg"
 
 # Add printers
 log cups-pdf --- fails, but...
 (
     mkdir CUPS-PDF
     cd CUPS-PDF
-    curl https://bitbucket.org/codepoet/cups-pdf-for-mac-os-x/downloads/CUPS-PDF%202.6.1%20Installer.pkg | tar xf - 
-    tar xf cups-pdf.pkg/Payload
-    tar xf generic-color-ppd.pkg/Payload
-    sudo sh -c <<EOF
-set -x
-ln -s /var/spool/cups-pdf/ /Users/Shared/CUPS-PDF
-cp etc/cups/cups-pdf.conf /etc/cups/cups-pdf.conf
-cp usr/libexec/cups/backend/cups-pdf /usr/libexec/cups/backend/cups-pdf
-cp usr/share/cups/model/PostscriptColor.ppd /usr/local/share/cups/model/PostscriptColor.ppd
-killall -HUP cupsd
-EOF
+    wget https://bitbucket.org/codepoet/cups-pdf-for-mac-os-x/downloads/CUPS-PDF%202.6.1%20Installer.pkg
+    xar -xf 'CUPS-PDF 2.6.1 Installer.pkg'
+    tar -xf cups-pdf.pkg/Payload
+    tar -xf generic-color-ppd.pkg/Payload
+    sudo sh -c "
+set -x;
+ln -s /var/spool/cups-pdf/ /Users/Shared/CUPS-PDF;
+cp etc/cups/cups-pdf.conf /etc/cups/cups-pdf.conf;
+cp usr/libexec/cups/backend/cups-pdf /usr/libexec/cups/backend/cups-pdf;
+cp usr/share/cups/model/PostscriptColor.ppd /usr/local/share/cups/model/PostscriptColor.ppd;
+killall -HUP cupsd;
+"
     cd ..
     rm -rf CUPS-PDF
-))
+)
 
 log add cups-pdf printer, direct2pdf
-sudo sh -c <<LPSETUP_DONE
+sudo sh "
   lpadmin -E -p direct2pdf                                    \
           -v cups-pdf:/                                       \
           -P /usr/local/share/cups/model/PostscriptColor.ppd  \
-          -o printer-is-shared=false
-  cupsenable direct2pdf
-  cupsaccept direct2pdf
-  lpoptions -d direct2pdf
-  cupssctl WebInterface=yes
-LPSETUP_DONE
+          -o printer-is-shared=false;
+  cupsenable direct2pdf;
+  cupsaccept direct2pdf;
+  lpoptions -d direct2pdf;
+  cupssctl WebInterface=yes;
+"
 
-sudo sh -c <<EOF
-set -x
+sudo sh -c "
+set -x;
 grep /usr/local/bin/zsh /etc/shells >/dev/null ||
-     echo /usr/local/bin/zsh >> /etc/shells
-nvram boot-args="-v"
-EOF
+     echo /usr/local/bin/zsh >> /etc/shells;
+nvram boot-args='-v'
+"
 
 #
 # now the individual tweaks
@@ -135,7 +136,7 @@ git clone git@github.com:kvaradhan3/rc-files.git .rc &&
 chsh -s /usr/local/bin/zsh $(whoami)
 
 log initialize some basic apps
-open -a Caffeine
+#open -a Caffeine
 open -a Go2Shell
 open -a GeekTool
 open -a Sync
