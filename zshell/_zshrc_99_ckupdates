@@ -17,7 +17,7 @@ case $syst in
 darwin)
     if [[ $(( $(stat -Lf %m $0) + 2 * 24 * 60 * 60 )) -lt $(date +%s) ]] ; then
         /usr/sbin/softwareupdate -l
-        brew update
+        brew update >/dev/null 2>&-
         brew outdated
         brew cask outdated
         touch -m $0
