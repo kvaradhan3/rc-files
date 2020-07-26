@@ -1,3 +1,15 @@
+(defun kv/print-list (lst)
+  "Dump a list in readable format"
+  (interactive "vList-name? ")
+  (princ (format "%s = " 'lst))
+  (if (nlistp lst)
+      (princ (format "%s\n" lst))
+    (progn
+      (princ (format "(\n"))
+      (dolist (elt lst)
+	(princ (format "\t%s\n" elt)))
+      (princ (format ")\n")))
+    ))
 
 (defconst tidbits
     (list 
@@ -10,8 +22,7 @@
 (defun README ()
   "Emacs tips I want to see when I am on it, things I keep forgetting"
   (interactive)
-  (dolist (m tidbits)
-    (message m)))
+  (kv/print-list tidbits))
 
 ;
 ;;; Local Variables:
