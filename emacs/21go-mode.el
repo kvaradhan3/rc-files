@@ -1,43 +1,40 @@
-(let ((gopath (shell-command-to-string "go env GOPATH")))
-  (if (string-match "\n" gopath)
-      (setq GOPATH (substring gopath 0 (string-match "\n" gopath)))
-    (setq GOPATH gopath))
-  (setenv "GOPATH" GOPATH))
+(defun go/maybe-load-oracle ()
+   "If an oracle file exists in the gopath, load it"
+   (let ((oracle-file (format
+                       "%s/src/golang.org/x/tools/cmd/guru/guru.el"
+                       (getenv "GOPATH"))))
+     (if (file-exists-p oracle-file)
+         (load-file oracle-file))))
 
-(add-hook 'go-mode-hook
-          '(lambda ()
-             (auto-complete-mode 1)
-             ))
+(use-package go-mode
+  :init
+  (setq gofmt-command "goimports")
+  (if (not (string-match "go" compile-command))
+      (set (make-local-variable 'compile-command)
+           "go build -v && go test -v && go vet"))
 
-(with-eval-after-load 'go-mode
-  (require 'go-autocomplete))
+  :bind (:map go-mode-map
+              ("M-."  . godef-jump)
+              ("M-*"  . pop-tag-mark)
+        )
 
+  :config
+  (setq tab-width		   4
+        indent-tabs-mode     nil)
+  ;; (infer-indentation-style)
+  (go/maybe-load-oracle)
+  (add-hook 'before-save-hook 'gofmt-before-save)
+  )
 
-(add-hook 'go-mode-hook
-	  '(lambda ()
-	     (setq tab-width		4)
-             (setq indent-tabs-mode     nil)
-             ;;; (infer-indentation-style)
-             ))
+(use-package go-autocomplete
+  :defer t
+  :after go-mode
+  :config
+  (auto-complete-mode 1))
 
+;; (with-eval-after-load 'go-mode
+;;   (require 'go-autocomplete))
 
-(add-hook 'go-mode-hook
-          '(lambda ()
-             (setq gofmt-command "goimports")
-             (add-hook 'before-save-hook 'gofmt-before-save)
-             (if (not (string-match "go" compile-command))
-                 (set (make-local-variable 'compile-command)
-                      "go build -v && go test -v && go vet"))
-
-             (let ((oracle-file (format
-                                 "%s/src/golang.org/x/tools/cmd/guru/guru.el"
-                                 (getenv "GOPATH"))))
-               (if (file-exists-p oracle-file)
-                   (load-file oracle-file)))
-
-             (local-set-key (kbd "M-.") 'godef-jump)
-             (local-set-key (kbd "M-*") 'pop-tag-mark)
-             ))
 
 ;;;
 ;;; Local Variables:
