@@ -2,9 +2,6 @@
 ;;; Some library functions for Org Mode
 ;;;
 
-(add-to-list 'auto-mode-alist	'("\\.org$"	. org-mode))
-(add-to-list 'auto-mode-alist	'("\\.txt$"	. indented-text-mode))
-
 (defun org-table-wrap-to-width (width)
   "Wrap current column to WIDTH."
   (interactive (list (read-number "Enter column width: ")))
