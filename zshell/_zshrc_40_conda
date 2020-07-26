@@ -1,5 +1,5 @@
 if [ -d $HOME/.conda ] ; then
-    _condaDir=$(cat $HOME/.conda/environments.txt)
+    _condaDir=$(head -1 $HOME/.conda/environments.txt)
 else
     _condaDir=/usr/local/anaconda3
 fi
@@ -54,9 +54,19 @@ con() {
         '.')    conda activate $(basename $(pwd)) ;;
         *)      conda activate "$@" ;;
         esac
+        if [ -z "$CONDA_PREFIX" ] ; then
+            conda info --envs
+        fi
         ;;
     '')
-	conda activate $(basename $(pwd))
+        if [ -n "$CONDA_PREFIX" ] ; then
+            conda deactivate
+        else
+	    conda activate $(basename $(pwd))
+            if [ -z "$CONDA_PREFIX" ] ; then
+                conda info --envs
+            fi
+        fi
 	;;
     *)
         conda "$@"
