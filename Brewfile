@@ -83,7 +83,6 @@ cask "virtualbox-extension-pack"
 cask "visual-studio-code"
 cask "vlc"
 cask "whatsapp"
-cask "yammer"
 cask "zoomus"
 mas "Amphetamine", id: 937984704
 mas "GarageBand", id: 682658836
